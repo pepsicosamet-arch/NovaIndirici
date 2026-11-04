@@ -25,7 +25,7 @@ python3 - "$VER" "$NOTES" <<'PY'
 import json, sys
 ver, notes = sys.argv[1], sys.argv[2]
 json.dump({"version": ver, "notes": notes,
-           "url": "https://github.com/sametsahiniletisim-hue/nova-indirici/raw/main/dist/NOVA-Indirici-Setup.exe"},
+           "url": "https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"},
           open("dist/latest.json", "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 PY
 echo "✓ Hazır: dist/ (v$VER). Şimdi: git add -A && git commit -m \"v$VER\" && git push"

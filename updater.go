@@ -18,7 +18,7 @@ import (
 )
 
 var (
-	RepoBase  = envOr("NOVA_UPDATE_BASE", "https://github.com/sametsahiniletisim-hue/nova-indirici/")
+	RepoBase  = envOr("NOVA_UPDATE_BASE", "https://github.com/pepsicosamet-arch/NovaIndirici/")
 	UpdateURL = envOr("NOVA_UPDATE_URL", RepoBase+"raw/main/dist/latest.json")
 )
 

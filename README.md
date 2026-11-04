@@ -8,9 +8,9 @@ Bağlantıyı yapıştır, gerisini NOVA halletsin. YouTube, Instagram, TikTok, 
 
 ## ⬇️ İndir
 
-**[NOVA-Indirici-Setup.exe](https://github.com/sametsahiniletisim-hue/nova-indirici/raw/main/dist/NOVA-Indirici-Setup.exe)** (Windows 10 / 11, 64 bit) indir ve çalıştır. Kurulum birkaç saniye sürer, yönetici izni gerekmez.
+**[NOVA-Indirici-Setup.exe](https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe)** (Windows 10 / 11, 64 bit) indir ve çalıştır. Kurulum birkaç saniye sürer, yönetici izni gerekmez.
 
-Kurulum istemeyenler için taşınabilir sürüm: [NOVA-Indirici.exe](https://github.com/sametsahiniletisim-hue/nova-indirici/raw/main/dist/NOVA-Indirici.exe)
+Kurulum istemeyenler için taşınabilir sürüm: [NOVA-Indirici.exe](https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici.exe)
 
 > Dosya imzasız olduğu için Windows SmartScreen uyarı verebilir: **Ek bilgi → Yine de çalıştır**.
 > İlk açılışta indirme motoru (yt-dlp) ve FFmpeg otomatik indirilir (yalnızca bir kez).

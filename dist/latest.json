@@ -1,5 +1,5 @@
 {
-  "version": "1.3.0",
-  "notes": "Yeni web sitemiz yayında: novaindirici.com. Hakkında sayfasına site bağlantısı eklendi.",
-  "url": "https://github.com/sametsahiniletisim-hue/nova-indirici/raw/main/dist/NOVA-Indirici-Setup.exe"
+  "version": "1.4.0",
+  "notes": "NOVA artık yeni GitHub hesabından güncelleniyor. Küçük iyileştirmeler.",
+  "url": "https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"
 }
