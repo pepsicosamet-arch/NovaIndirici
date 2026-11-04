@@ -300,19 +300,26 @@ class NovaViewModel(app: Application) : AndroidViewModel(app) {
     private fun checkUpdate() {
         viewModelScope.launch {
             val u = withContext(Dispatchers.IO) {
-                try {
-                    val c = URL(LATEST_URL).openConnection() as HttpURLConnection
-                    c.connectTimeout = 10000
-                    c.readTimeout = 10000
-                    c.setRequestProperty("User-Agent", "NOVA-Indirici-Android/" + BuildConfig.VERSION_NAME)
-                    val body = c.inputStream.bufferedReader().use { it.readText() }
-                    val j = JSONObject(body)
-                    val v = j.optString("version")
-                    val apk = j.optString("android")
-                    if (newer(v, BuildConfig.VERSION_NAME) && apk.startsWith(REPO_BASE)) UpdateInfo(v, j.optString("notes"), apk) else null
-                } catch (e: Throwable) {
-                    null
+                var found: UpdateInfo? = null
+                for (src in UPDATE_SOURCES) {
+                    try {
+                        val c = URL(src + "?t=" + (System.currentTimeMillis() / 300000)).openConnection() as HttpURLConnection
+                        c.connectTimeout = 10000
+                        c.readTimeout = 10000
+                        c.setRequestProperty("User-Agent", "NOVA-Indirici-Android/" + BuildConfig.VERSION_NAME)
+                        c.setRequestProperty("Cache-Control", "no-cache")
+                        if (c.responseCode != 200) continue
+                        val j = JSONObject(c.inputStream.bufferedReader().use { it.readText() })
+                        val v = j.optString("version")
+                        if (v.isEmpty()) continue
+                        val apk = j.optString("android")
+                        found = if (newer(v, BuildConfig.VERSION_NAME) && apk.startsWith(REPO_BASE)) UpdateInfo(v, j.optString("notes"), apk) else null
+                        break
+                    } catch (e: Throwable) {
+                        continue
+                    }
                 }
+                found
             }
             update = u
         }
@@ -332,6 +339,12 @@ class NovaViewModel(app: Application) : AndroidViewModel(app) {
     companion object {
         const val REPO_BASE = "https://github.com/pepsicosamet-arch/NovaIndirici/"
         const val LATEST_URL = REPO_BASE + "raw/main/dist/latest.json"
+        /** Biri çalışmazsa sıradaki denenir. */
+        val UPDATE_SOURCES = listOf(
+            LATEST_URL,
+            REPO_BASE + "releases/latest/download/latest.json",
+            "https://novaindirici.com.tr/latest.json",
+        )
 
         fun newer(a: String, b: String): Boolean {
             val pa = a.trim().removePrefix("v").split(".").map { it.toIntOrNull() ?: 0 }

@@ -39,7 +39,7 @@ jobs:
           Geliştiren: Samet Şahin · novaindirici.com.tr"
           fi
           FILES=""
-          for f in NOVA-Indirici-Setup.exe NOVA-Indirici.exe NOVA-Indirici-Mac.dmg NOVA-Indirici-Android.apk NOVA-Indirici-Android-32bit.apk; do
+          for f in latest.json NOVA-Indirici-Setup.exe NOVA-Indirici.exe NOVA-Indirici-Mac.dmg NOVA-Indirici-Android.apk NOVA-Indirici-Android-32bit.apk; do
             [ -f "dist/$f" ] && FILES="$FILES dist/$f"
           done
           gh release upload "$TAG" $FILES --clobber

@@ -79,6 +79,53 @@ func verParts(v string) [3]int {
 	return out
 }
 
+type latestInfo struct {
+	Version string `json:"version"`
+	URL     string `json:"url"`
+	Mac     string `json:"mac"`
+	Notes   string `json:"notes"`
+}
+
+// updateSources: biri çalışmazsa sıradakine geçilir.
+func updateSources() []string {
+	if v := os.Getenv("NOVA_UPDATE_URL"); v != "" {
+		return []string{v}
+	}
+	return []string{
+		UpdateURL,
+		RepoBase + "releases/latest/download/latest.json",
+		"https://novaindirici.com.tr/latest.json",
+	}
+}
+
+func fetchLatest() (*latestInfo, error) {
+	c := http.Client{Timeout: 15 * time.Second}
+	var lastErr error = errors.New("Güncelleme sunucusuna ulaşılamadı. İnternet bağlantını kontrol et.")
+	for _, src := range updateSources() {
+		req, _ := http.NewRequest("GET", src+"?t="+strconv.FormatInt(time.Now().Unix()/300, 10), nil)
+		req.Header.Set("User-Agent", "NOVA-Indirici/"+AppVersion)
+		req.Header.Set("Cache-Control", "no-cache")
+		resp, err := c.Do(req)
+		if err != nil {
+			log.Println("güncelleme kaynağı ulaşılamadı:", src, err)
+			continue
+		}
+		var li latestInfo
+		if resp.StatusCode == 200 {
+			err = json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&li)
+		} else {
+			err = fmt.Errorf("HTTP %d", resp.StatusCode)
+		}
+		resp.Body.Close()
+		if err == nil && li.Version != "" {
+			return &li, nil
+		}
+		log.Println("güncelleme kaynağı geçersiz:", src, err)
+		lastErr = errors.New("Güncelleme bilgisi şu an alınamıyor. Biraz sonra tekrar dene.")
+	}
+	return nil, lastErr
+}
+
 func CheckUpdate() error {
 	updMu.Lock()
 	if upd.Checking || upd.Busy {
@@ -90,25 +137,9 @@ func CheckUpdate() error {
 	updEmit()
 
 	err := func() error {
-		c := http.Client{Timeout: 15 * time.Second}
-		req, _ := http.NewRequest("GET", UpdateURL+"?t="+strconv.FormatInt(time.Now().Unix()/300, 10), nil)
-		req.Header.Set("User-Agent", "NOVA-Indirici/"+AppVersion)
-		resp, err := c.Do(req)
+		li, err := fetchLatest()
 		if err != nil {
-			return errors.New("Güncelleme sunucusuna ulaşılamadı.")
-		}
-		defer resp.Body.Close()
-		if resp.StatusCode != 200 {
-			return fmt.Errorf("Güncelleme bilgisi alınamadı (HTTP %d).", resp.StatusCode)
-		}
-		var li struct {
-			Version string `json:"version"`
-			URL     string `json:"url"`
-			Mac     string `json:"mac"`
-			Notes   string `json:"notes"`
-		}
-		if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&li); err != nil {
-			return errors.New("Güncelleme bilgisi okunamadı.")
+			return err
 		}
 		updMu.Lock()
 		upd.Latest, upd.Notes = li.Version, li.Notes

@@ -33,4 +33,5 @@ json.dump({"version": ver, "notes": notes,
            "android": rel + "NOVA-Indirici-Android.apk"},
           open("dist/latest.json", "w", encoding="utf-8"), ensure_ascii=False, indent=2)
 PY
+cp dist/latest.json docs/latest.json   # site üzerinden de güncelleme bilgisi verilir
 echo "✓ Hazır: dist/ (v$VER). Şimdi: git add -A && git commit -m \"v$VER\" && git push"
