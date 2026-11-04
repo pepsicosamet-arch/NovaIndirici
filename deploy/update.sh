@@ -3,6 +3,7 @@
 # Kullanım: sh /opt/nova/deploy/update.sh [--force]
 set -e
 cd /opt/nova
+docker network inspect nova >/dev/null 2>&1 || docker network create nova >/dev/null
 git fetch -q origin main
 if [ "$1" = "--force" ] || [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/main)" ]; then
   git reset -q --hard origin/main
@@ -14,7 +15,6 @@ if [ "$1" = "--force" ] || [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/
     nova-web >/dev/null
   docker image prune -f >/dev/null 2>&1 || true
 fi
-docker network inspect nova >/dev/null 2>&1 || docker network create nova >/dev/null
 if ! docker inspect caddy >/dev/null 2>&1; then
   docker run -d --name caddy --network nova --restart unless-stopped \
     -p 80:80 -p 443:443 -v caddy_data:/data -v caddy_config:/config \
