@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="orb" cx="42%" cy="38%" r="70%">
+      <stop offset="0" stop-color="#b3121f"/>
+      <stop offset=".55" stop-color="#6e0a16"/>
+      <stop offset="1" stop-color="#2a040a"/>
+    </radialGradient>
+    <linearGradient id="nfill" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff8a5c"/>
+      <stop offset=".45" stop-color="#ff3b3b"/>
+      <stop offset="1" stop-color="#c8101e"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff6a4a"/>
+      <stop offset="1" stop-color="#b80f1c"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="16"/>
+    </filter>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3"/>
+    </filter>
+    <clipPath id="orbClip"><circle cx="256" cy="262" r="168"/></clipPath>
+    <symbol id="spark" viewBox="-10 -10 20 20"><path d="M0-10 2-2 10 0 2 2 0 10-2 2-10 0-2-2z"/></symbol>
+  </defs>
+
+  <!-- dış parıltı -->
+  <circle cx="256" cy="262" r="178" fill="#ff2a2a" opacity=".45" filter="url(#glow)"/>
+  <!-- küre -->
+  <circle cx="256" cy="262" r="168" fill="url(#orb)"/>
+  <g clip-path="url(#orbClip)" fill="#ffb199">
+    <circle cx="160" cy="190" r="2.2" opacity=".8"/><circle cx="210" cy="140" r="1.6" opacity=".7"/>
+    <circle cx="380" cy="250" r="2" opacity=".7"/><circle cx="300" cy="400" r="1.8" opacity=".6"/>
+    <circle cx="140" cy="300" r="1.5" opacity=".6"/><circle cx="395" cy="330" r="2.4" opacity=".7"/>
+    <circle cx="250" cy="120" r="1.4" opacity=".6"/><circle cx="360" cy="160" r="1.6" opacity=".5"/>
+    <ellipse cx="200" cy="175" rx="120" ry="70" fill="#ff5a4a" opacity=".12" filter="url(#soft)"/>
+  </g>
+  <circle cx="256" cy="262" r="168" fill="none" stroke="url(#rim)" stroke-width="7"/>
+
+  <!-- yörünge -->
+  <path d="M84 312 C 60 250, 250 170, 430 200" fill="none" stroke="#ff7a45" stroke-width="7" stroke-linecap="round" opacity=".9"/>
+  <path d="M440 236 C 470 300, 320 380, 150 380" fill="none" stroke="#ff7a45" stroke-width="5" stroke-linecap="round" opacity=".55"/>
+
+  <!-- N + ok: koyu kontur -->
+  <g stroke="#1d0509" stroke-linejoin="round" stroke-linecap="round" fill="#1d0509">
+    <path d="M180 318 V160 L338 360 V82" fill="none" stroke-width="86"/>
+    <path d="M112 300 H248 L180 412 Z" stroke-width="30"/>
+  </g>
+  <!-- N + ok: dolgu -->
+  <g stroke-linejoin="round" stroke-linecap="round">
+    <path d="M180 318 V160 L338 360 V82" fill="none" stroke="url(#nfill)" stroke-width="56"/>
+    <path d="M120 306 H240 L180 402 Z" fill="url(#nfill)" stroke="url(#nfill)" stroke-width="14"/>
+    <!-- parlama -->
+    <path d="M168 300 V172" stroke="#ffd2c2" stroke-width="9" opacity=".55" fill="none"/>
+    <path d="M350 330 V96" stroke="#ffd2c2" stroke-width="7" opacity=".4" fill="none"/>
+    <path d="M196 170 L330 340" stroke="#ffe3d8" stroke-width="6" opacity=".35" fill="none"/>
+  </g>
+
+  <!-- yıldızlar -->
+  <use href="#spark" x="58" y="96" width="40" height="40" fill="#ff4a4a"/>
+  <use href="#spark" x="256" y="100" width="30" height="30" fill="#ffffff"/>
+  <use href="#spark" x="400" y="80" width="28" height="28" fill="#ff8a4a"/>
+  <use href="#spark" x="404" y="372" width="38" height="38" fill="#ff8a4a"/>
+  <use href="#spark" x="246" y="404" width="26" height="26" fill="#ff5a5a"/>
+  <use href="#spark" x="96" y="420" width="22" height="22" fill="#ff4a4a"/>
+  <circle cx="440" cy="300" r="4" fill="#ff6a4a"/><circle cx="70" cy="250" r="4" fill="#ff4a4a"/>
+  <circle cx="300" cy="60" r="3" fill="#ff6a4a"/><circle cx="455" cy="150" r="3" fill="#ff8a4a"/>
+</svg>

@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NOVA İndirici</title>
+<link rel="icon" href="logo.png">
+<style>
+:root{
+  --bg:#0c0b0f; --bg2:#121117; --panel:#17151c; --panel2:#1e1b24; --line:#2a2631; --line2:#37313f;
+  --text:#f3eff2; --muted:#a59ca8; --dim:#6f6773;
+  --red:#ff3b3b; --red2:#d91f2a; --ember:#ff7a45; --redsoft:rgba(255,59,59,.12);
+  --ok:#3ecf8e; --warn:#ffb547; --err:#ff5a5f;
+  --r:14px; --font:"Segoe UI Variable Text","Segoe UI",system-ui,-apple-system,sans-serif;
+  --display:"Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--text);font:14px/1.5 var(--font);overflow:hidden;-webkit-font-smoothing:antialiased}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+::selection{background:var(--red2);color:#fff}
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-thumb{background:#2c2833;border-radius:10px;border:3px solid var(--bg)}
+.app{display:grid;grid-template-columns:232px 1fr;height:100vh}
+
+/* sidebar */
+aside{background:var(--bg2);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:18px 14px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 6px 22px}
+.brand img{width:46px;height:46px;filter:drop-shadow(0 0 14px rgba(255,50,50,.45))}
+.brand b{display:block;font:800 22px/1 var(--display);letter-spacing:.06em}
+.brand b span{color:var(--red)}
+.brand small{display:block;font-size:10.5px;letter-spacing:.32em;color:var(--muted);margin-top:4px;font-weight:600}
+nav{display:flex;flex-direction:column;gap:2px}
+nav button{display:flex;align-items:center;gap:11px;background:none;border:0;border-radius:10px;padding:10px 12px;color:var(--muted);text-align:left;font-weight:500;position:relative}
+nav button svg{width:18px;height:18px;flex:none}
+nav button:hover{background:var(--panel);color:var(--text)}
+nav button.on{background:var(--redsoft);color:#fff}
+nav button.on::before{content:"";position:absolute;left:-14px;top:9px;bottom:9px;width:3px;border-radius:0 3px 3px 0;background:var(--red)}
+nav .badge{margin-left:auto;background:var(--red);color:#fff;font-size:11px;font-weight:700;border-radius:20px;padding:0 7px;line-height:18px}
+.side-foot{margin-top:auto;padding:12px 8px 2px;color:var(--dim);font-size:12px;border-top:1px solid var(--line)}
+.side-foot a{color:var(--muted);text-decoration:none;cursor:pointer}
+.side-foot a:hover{color:var(--text)}
+
+/* main */
+main{overflow:auto;position:relative}
+.view{display:none;padding:34px 40px 60px;max-width:980px}
+.view.on{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(4px)}}
+h1{font:700 28px/1.2 var(--display);margin:0 0 6px;letter-spacing:-.01em}
+h2{font:600 15px/1.3 var(--display);margin:30px 0 12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;font-size:12px}
+.sub{color:var(--muted);margin:0 0 24px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--red),var(--ember));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+.urlbar{display:flex;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:7px;transition:border-color .2s,box-shadow .2s}
+.urlbar:focus-within{border-color:#5a2a2e;box-shadow:0 0 0 4px rgba(255,59,59,.10)}
+.urlbar svg{width:20px;height:20px;color:var(--dim);margin:0 2px 0 10px;align-self:center;flex:none}
+.urlbar input{flex:1;background:none;border:0;outline:0;padding:10px 6px;font-size:15px;min-width:0}
+.urlbar input::placeholder{color:var(--dim)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border-radius:11px;border:1px solid var(--line2);background:var(--panel2);padding:9px 15px;font-weight:600;white-space:nowrap;transition:background .15s,border-color .15s,transform .05s}
+.btn:hover{background:#26222d;border-color:#463f50}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:16px;height:16px}
+.btn.primary{background:linear-gradient(180deg,#ff4545,#e0222d);border-color:#ff5a5a;color:#fff;box-shadow:0 6px 20px -6px rgba(255,40,40,.55)}
+.btn.primary:hover{background:linear-gradient(180deg,#ff5555,#e72c36)}
+.btn.ghost{background:none;border-color:transparent;color:var(--muted)}
+.btn.ghost:hover{background:var(--panel2);color:var(--text)}
+.btn.sm{padding:6px 10px;font-size:13px;border-radius:9px}
+.btn.big{padding:13px 26px;font-size:15px;border-radius:13px}
+.btn:disabled{opacity:.5;pointer-events:none}
+.sites{display:flex;flex-wrap:wrap;gap:6px;margin:14px 2px 0;color:var(--dim);font-size:12.5px}
+.sites span{border:1px solid var(--line);border-radius:20px;padding:2px 10px}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r)}
+.preview{margin-top:22px;padding:18px;display:none}
+.preview.on{display:block;animation:fade .25s ease}
+.pv-top{display:flex;gap:18px}
+.thumb{width:220px;aspect-ratio:16/9;border-radius:10px;background:#0f0e12 center/cover no-repeat;flex:none;position:relative;overflow:hidden;border:1px solid var(--line)}
+.thumb .dur{position:absolute;right:6px;bottom:6px;background:rgba(0,0,0,.75);font-size:12px;font-weight:600;border-radius:5px;padding:1px 6px}
+.thumb.noimg{display:grid;place-items:center;color:var(--dim)}
+#pvThumb.noimg{background:#0f0e12 url(logo.svg) center/54px no-repeat}
+.pv-meta{min-width:0;flex:1}
+.pv-title{font:600 17px/1.35 var(--display);margin:2px 0 6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pv-sub{color:var(--muted);font-size:13px}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;letter-spacing:.02em;border-radius:6px;padding:2px 7px;background:var(--redsoft);color:#ff8c8c}
+.opts{display:grid;grid-template-columns:auto 1fr;gap:14px 18px;align-items:center;margin-top:20px;padding-top:18px;border-top:1px solid var(--line)}
+.opts label.k{color:var(--muted);font-size:13px}
+.opts>*{justify-self:start}
+.seg{display:inline-flex;background:var(--bg2);border:1px solid var(--line);border-radius:11px;padding:3px;gap:2px}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:8px;color:var(--muted);font-weight:600;display:inline-flex;align-items:center;gap:6px}
+.seg button svg{width:15px;height:15px}
+.seg button.on{background:var(--panel2);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.05) inset,0 0 0 1px var(--line2)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line2);background:none;border-radius:9px;padding:5px 12px;color:var(--muted);font-weight:600;font-size:13px}
+.chip:hover{color:var(--text);border-color:#4b4354}
+.chip.on{border-color:var(--red);color:#fff;background:var(--redsoft)}
+.chip small{color:var(--dim);font-weight:500;margin-left:3px}
+.pv-actions{display:flex;align-items:center;gap:12px;margin-top:20px;justify-content:flex-end}
+.pv-actions .where{margin-right:auto;color:var(--dim);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pv-list{margin:10px 0 0;padding:0;list-style:none;color:var(--muted);font-size:13px;max-height:120px;overflow:auto}
+.pv-list li{padding:2px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pv-list li b{color:var(--dim);font-weight:500;margin-right:6px}
+
+.switch{position:relative;display:inline-flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.switch input{display:none}
+.switch i{width:38px;height:22px;border-radius:20px;background:#2d2934;position:relative;transition:background .2s;flex:none}
+.switch i::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#bdb5c0;transition:transform .2s,background .2s}
+.switch input:checked+i{background:var(--red2)}
+.switch input:checked+i::after{transform:translateX(16px);background:#fff}
+
+.loading{display:none;align-items:center;gap:12px;margin-top:22px;color:var(--muted)}
+.loading.on{display:flex}
+.spin{width:18px;height:18px;border-radius:50%;border:2px solid #3a3440;border-top-color:var(--red);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.alert{display:none;margin-top:18px;padding:12px 14px;border-radius:12px;background:rgba(255,90,95,.08);border:1px solid rgba(255,90,95,.3);color:#ffb3b5}
+.alert.on{display:block}
+
+/* jobs */
+.jobs{display:flex;flex-direction:column;gap:10px}
+.job{display:grid;grid-template-columns:96px 1fr auto;gap:14px;align-items:center;padding:12px;border-radius:var(--r);background:var(--panel);border:1px solid var(--line)}
+.job .thumb{width:96px;border-radius:8px}
+.job-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.job-meta{display:flex;flex-wrap:wrap;gap:4px 12px;color:var(--muted);font-size:12.5px;margin-top:2px}
+.job-meta .st{font-weight:600}
+.st.done{color:var(--ok)}.st.error{color:var(--err)}.st.canceled{color:var(--dim)}.st.downloading,.st.processing,.st.starting{color:#ff8c8c}
+.bar{height:5px;background:#26222c;border-radius:5px;margin-top:9px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--red2),var(--ember));border-radius:5px;transition:width .3s}
+.bar.indet i{width:35%!important;animation:indet 1.2s ease-in-out infinite}
+@keyframes indet{from{transform:translateX(-100%)}to{transform:translateX(300%)}}
+.job.done .bar i{background:var(--ok)}
+.job.error .bar i{background:var(--err)}
+.job-err{color:#ff9a9d;font-size:12.5px;margin-top:6px}
+.job-act{display:flex;gap:4px}
+.icon-btn{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;border:1px solid transparent;background:none;color:var(--muted)}
+.icon-btn:hover{background:var(--panel2);border-color:var(--line2);color:var(--text)}
+.icon-btn svg{width:17px;height:17px}
+.empty{padding:46px 20px;text-align:center;color:var(--dim);border:1px dashed var(--line2);border-radius:var(--r)}
+.empty svg{width:34px;height:34px;color:#3d3744;margin-bottom:8px}
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:16px}
+.toolbar .grow{flex:1}
+.search{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;outline:0;width:260px}
+.search:focus{border-color:#5a2a2e}
+
+/* settings */
+.rows{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:20px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .lbl{flex:1;min-width:0}
+.row .lbl b{display:block;font-weight:600}
+.row .lbl span{color:var(--muted);font-size:13px}
+.path{font-family:ui-monospace,Consolas,monospace;font-size:12.5px;color:var(--muted);background:var(--bg2);border:1px solid var(--line);border-radius:8px;padding:6px 10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:360px;display:block;margin-top:6px}
+select{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:7px 10px;outline:0}
+.stepper{display:inline-flex;align-items:center;border:1px solid var(--line2);border-radius:10px;overflow:hidden}
+.stepper button{border:0;background:var(--panel2);width:32px;height:32px;font-size:16px}
+.stepper b{min-width:34px;text-align:center}
+
+/* about */
+.maker{display:grid;grid-template-columns:auto 1fr;gap:28px;padding:28px;align-items:center;position:relative;overflow:hidden}
+.maker::before{content:"";position:absolute;right:-120px;top:-120px;width:360px;height:360px;background:radial-gradient(closest-side,rgba(255,59,59,.16),transparent);pointer-events:none}
+.avatar{width:150px;height:150px;border-radius:24px;object-fit:cover;border:1px solid var(--line2);box-shadow:0 20px 40px -20px rgba(255,40,40,.5)}
+.kicker{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);font-weight:700}
+.maker h3{font:700 30px/1.15 var(--display);margin:6px 0 2px}
+.maker .role{color:var(--muted);margin:0 0 14px}
+.maker p{margin:0 0 18px;color:#d7cfd8;max-width:520px}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+.about-grid .card{padding:16px 18px}
+.about-grid b{display:block;margin-bottom:2px}
+.about-grid span{color:var(--muted);font-size:13px}
+.logo-hero{display:flex;align-items:center;gap:18px;margin-bottom:26px}
+.logo-hero img{width:84px;height:84px;filter:drop-shadow(0 0 22px rgba(255,50,50,.5))}
+
+/* setup overlay */
+.setup{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 30%,#1f0c10,var(--bg) 60%);display:none;place-items:center;z-index:20}
+.setup.on{display:grid}
+.setup-box{width:min(440px,90vw);text-align:center}
+.setup-box img{width:130px;height:130px;filter:drop-shadow(0 0 34px rgba(255,50,50,.55));animation:float 4s ease-in-out infinite}
+@keyframes float{50%{transform:translateY(-6px)}}
+.setup-box h1{margin-top:14px}
+.setup-box .bar{height:7px;margin:22px 0 10px}
+.setup-box .muted{color:var(--muted);font-size:13px}
+
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);background:#221f28;border:1px solid var(--line2);padding:10px 16px;border-radius:12px;box-shadow:0 12px 30px rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:80vw}
+.toast.on{opacity:1;transform:translateX(-50%)}
+@media (max-width:760px){.app{grid-template-columns:72px 1fr}.brand div,nav button span,.side-foot{display:none}.view{padding:24px 18px}.pv-top{flex-direction:column}.thumb{width:100%}.maker{grid-template-columns:1fr}.about-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-dl" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0-5-5m5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></symbol>
+    <symbol id="i-list" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></symbol>
+    <symbol id="i-paste" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
+    <symbol id="i-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="14" height="14" rx="2"/><path d="m16 10 6-3v10l-6-3z"/></symbol>
+    <symbol id="i-music" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    <symbol id="i-retry" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></symbol>
+    <symbol id="i-folder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14"/></symbol>
+    <symbol id="i-insta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></symbol>
+  </defs>
+</svg>
+
+<div class="app">
+  <aside>
+    <div class="brand"><img src="logo.svg" alt=""><div><b>N<span>O</span>VA</b><small>İNDİRİCİ</small></div></div>
+    <nav id="nav">
+      <button data-v="download" class="on"><svg><use href="#i-dl"/></svg><span>İndir</span></button>
+      <button data-v="queue"><svg><use href="#i-list"/></svg><span>İndirilenler</span><em class="badge" id="badge" hidden>0</em></button>
+      <button data-v="history"><svg><use href="#i-clock"/></svg><span>Geçmiş</span></button>
+      <button data-v="settings"><svg><use href="#i-gear"/></svg><span>Ayarlar</span></button>
+      <button data-v="about"><svg><use href="#i-user"/></svg><span>Hakkında</span></button>
+    </nav>
+    <div class="side-foot">NOVA İndirici <span id="ver"></span><br><a data-go="about">Yapan: Samet Şahin</a></div>
+  </aside>
+
+  <main>
+    <!-- İNDİR -->
+    <section class="view on hero" id="v-download">
+      <h1>Bağlantıyı yapıştır, <em>gerisini NOVA halletsin.</em></h1>
+      <p class="sub">Videoyu ya da sesi tek tıkla, istediğin kalitede bilgisayarına indir.</p>
+      <form class="urlbar" id="urlForm" autocomplete="off">
+        <svg><use href="#i-link"/></svg>
+        <input id="url" placeholder="https://www.youtube.com/watch?v=…" spellcheck="false">
+        <button type="button" class="btn ghost" id="pasteBtn" title="Panodan yapıştır"><svg><use href="#i-paste"/></svg>Yapıştır</button>
+        <button type="submit" class="btn primary" id="fetchBtn">Getir</button>
+      </form>
+      <div class="sites"><span>YouTube</span><span>Instagram</span><span>TikTok</span><span>X / Twitter</span><span>Facebook</span><span>SoundCloud</span><span>Vimeo</span><span>Twitch</span><span>+1000 site</span></div>
+
+      <div class="loading" id="loading"><div class="spin"></div><span>Bağlantı inceleniyor…</span></div>
+      <div class="alert" id="alert"></div>
+
+      <div class="card preview" id="preview">
+        <div class="pv-top">
+          <div class="thumb" id="pvThumb"><span class="dur" id="pvDur"></span></div>
+          <div class="pv-meta">
+            <span class="pill" id="pvSite"></span>
+            <div class="pv-title" id="pvTitle"></div>
+            <div class="pv-sub" id="pvSub"></div>
+            <ul class="pv-list" id="pvList"></ul>
+          </div>
+        </div>
+        <div class="opts">
+          <label class="k" id="plLabel" hidden>Oynatma listesi</label>
+          <label class="switch" id="plSwitch" hidden><input type="checkbox" id="plToggle"><i></i><span id="plText">Tüm listeyi indir</span></label>
+          <label class="k">Tür</label>
+          <div class="seg" id="modeSeg">
+            <button type="button" data-m="video" class="on"><svg><use href="#i-video"/></svg>Video</button>
+            <button type="button" data-m="audio"><svg><use href="#i-music"/></svg>Sadece ses</button>
+          </div>
+          <label class="k" id="qLabel">Kalite</label>
+          <div class="chips" id="qChips"></div>
+        </div>
+        <div class="pv-actions">
+          <span class="where" id="where"></span>
+          <button class="btn big primary" id="dlBtn"><svg><use href="#i-dl"/></svg>İndir</button>
+        </div>
+      </div>
+
+      <h2 id="activeHead" hidden>Şu an indirilenler</h2>
+      <div class="jobs" id="activeJobs"></div>
+    </section>
+
+    <!-- KUYRUK -->
+    <section class="view" id="v-queue">
+      <h1>İndirilenler</h1>
+      <p class="sub">Bu oturumda başlattığın indirmeler.</p>
+      <div class="toolbar"><span class="grow"></span>
+        <button class="btn sm" id="openDir"><svg><use href="#i-folder"/></svg>Klasörü aç</button>
+        <button class="btn sm ghost" id="clearDone">Bitenleri temizle</button>
+      </div>
+      <div class="jobs" id="allJobs"></div>
+    </section>
+
+    <!-- GEÇMİŞ -->
+    <section class="view" id="v-history">
+      <h1>Geçmiş</h1>
+      <p class="sub">Daha önce indirdiğin her şey burada.</p>
+      <div class="toolbar"><input class="search" id="hSearch" placeholder="Geçmişte ara…"><span class="grow"></span>
+        <button class="btn sm ghost" id="clearHist"><svg><use href="#i-trash"/></svg>Geçmişi temizle</button>
+      </div>
+      <div class="jobs" id="histJobs"></div>
+    </section>
+
+    <!-- AYARLAR -->
+    <section class="view" id="v-settings">
+      <h1>Ayarlar</h1>
+      <p class="sub">NOVA'yı kendine göre ayarla.</p>
+      <div class="card rows">
+        <div class="row"><div class="lbl"><b>İndirme klasörü</b><span class="path" id="sDir"></span></div>
+          <button class="btn sm" id="sOpen"><svg><use href="#i-folder"/></svg>Aç</button>
+          <button class="btn sm" id="sPick">Değiştir</button></div>
+        <div class="row"><div class="lbl"><b>Varsayılan tür</b><span>Yeni bağlantılar için seçili gelen tür</span></div>
+          <select id="sMode"><option value="video">Video</option><option value="audio">Sadece ses</option></select></div>
+        <div class="row"><div class="lbl"><b>Varsayılan video kalitesi</b><span>Mevcut değilse en yakın kalite seçilir</span></div>
+          <select id="sQuality"><option value="best">En iyi</option><option value="2160">4K (2160p)</option><option value="1440">1440p</option><option value="1080">1080p</option><option value="720">720p</option><option value="480">480p</option><option value="360">360p</option></select></div>
+        <div class="row"><div class="lbl"><b>Ses biçimi</b><span>Sadece ses indirirken kullanılır</span></div>
+          <select id="sAudio"><option value="mp3">MP3</option><option value="m4a">M4A</option><option value="opus">OPUS</option><option value="flac">FLAC</option><option value="wav">WAV</option></select></div>
+        <div class="row"><div class="lbl"><b>Aynı anda indirme</b><span>Kaç indirme birlikte çalışsın</span></div>
+          <div class="stepper"><button id="cMinus">−</button><b id="sConc">2</b><button id="cPlus">+</button></div></div>
+        <div class="row"><div class="lbl"><b>Kapak görselini göm</b><span>Video ve MP3 dosyalarına küçük resmi ekler</span></div>
+          <label class="switch"><input type="checkbox" id="sThumb"><i></i></label></div>
+        <div class="row"><div class="lbl"><b>Altyazıları ekle</b><span>Varsa Türkçe ve İngilizce altyazıları videoya gömer</span></div>
+          <label class="switch"><input type="checkbox" id="sSubs"><i></i></label></div>
+        <div class="row"><div class="lbl"><b>İndirme motoru</b><span id="sEngine">yt-dlp</span></div>
+          <button class="btn sm" id="sUpdate"><svg><use href="#i-retry"/></svg>Güncelle</button></div>
+      </div>
+      <p class="sub" style="margin-top:14px;font-size:12.5px">Bir site indirmeyi reddederse önce motoru güncellemeyi dene; siteler sık sık değişiyor.</p>
+    </section>
+
+    <!-- HAKKINDA -->
+    <section class="view" id="v-about">
+      <div class="logo-hero"><img src="logo.svg" alt="NOVA"><div><h1 style="margin:0">NOVA İndirici</h1><span class="sub" id="aboutVer" style="margin:0"></span></div></div>
+      <h2 style="margin-top:0">Yapan</h2>
+      <div class="card maker">
+        <img class="avatar" src="avatar.jpg" alt="Samet Şahin">
+        <div>
+          <div class="kicker">Geliştirici</div>
+          <h3>Samet Şahin</h3>
+          <p class="role">NOVA'yı tasarlayan ve geliştiren kişi</p>
+          <p>NOVA'yı sıfırdan tasarlayıp geliştirdim. Yeni özellikleri, geliştirme sürecini ve perde arkasını sosyal medya hesaplarımda paylaşıyorum.</p>
+          <button class="btn primary" id="follow"><svg><use href="#i-insta"/></svg>Takip et · @xsametsahinx</button>
+        </div>
+      </div>
+      <div class="about-grid">
+        <div class="card"><b>Gizlilik</b><span>NOVA hesap istemez, veri toplamaz. Her şey bilgisayarında kalır.</span></div>
+        <div class="card"><b>Açık kaynak bileşenler</b><span>İndirme için yt-dlp, dönüştürme için FFmpeg kullanılır.</span></div>
+      </div>
+      <p class="sub" style="margin-top:16px;font-size:12.5px">Yalnızca indirme hakkına sahip olduğun içerikleri indir.</p>
+    </section>
+  </main>
+</div>
+
+<div class="setup" id="setup">
+  <div class="setup-box">
+    <img src="logo.svg" alt="">
+    <h1>NOVA hazırlanıyor</h1>
+    <p class="muted" id="setupText">İlk açılışta indirme motoru (yt-dlp) ve FFmpeg indiriliyor. Bu yalnızca bir kez olur.</p>
+    <div class="bar" id="setupBar"><i></i></div>
+    <div class="muted" id="setupStage">Başlatılıyor…</div>
+    <div class="alert" id="setupErr" style="text-align:left"></div>
+    <button class="btn primary" id="setupRetry" style="margin-top:14px" hidden>Tekrar dene</button>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// --- token ---
+let T = '';
+const m = location.hash.match(/t=([0-9a-f]+)/);
+try { if (m) sessionStorage.setItem('novaT', m[1]); T = (m && m[1]) || sessionStorage.getItem('novaT') || ''; } catch { T = m ? m[1] : ''; }
+if (m) history.replaceState(null, '', location.pathname);
+
+async function api(path, body) {
+  const opt = { headers: { 'X-Nova-Token': T } };
+  if (body !== undefined) { opt.method = 'POST'; opt.headers['Content-Type'] = 'application/json'; opt.body = JSON.stringify(body); }
+  const r = await fetch('/api/' + path, opt);
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(j.error || ('Hata ' + r.status));
+  return j;
+}
+
+let toastT;
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 3200); }
+
+// --- state ---
+const S = { settings: {}, tools: {}, jobs: new Map(), history: [], info: null, mode: 'video', quality: 'best', audio: 'mp3' };
+
+// --- nav ---
+function go(v) {
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.v === v));
+  document.querySelectorAll('.view').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
+  try { sessionStorage.setItem('novaView', v); } catch {}
+}
+document.querySelectorAll('#nav button').forEach(b => b.onclick = () => go(b.dataset.v));
+document.querySelectorAll('[data-go]').forEach(a => a.onclick = () => go(a.dataset.go));
+
+// --- format ---
+const fmtBytes = n => { if (!n || n <= 0) return ''; const u = ['B','KB','MB','GB']; let i = 0; while (n >= 1024 && i < 3) { n /= 1024; i++; } return n.toFixed(i > 1 ? 1 : 0) + ' ' + u[i]; };
+const fmtTime = s => { s = Math.round(s || 0); if (s <= 0) return ''; const h = Math.floor(s/3600), m = Math.floor(s%3600/60), x = s%60; return (h ? h + ':' + String(m).padStart(2,'0') : m) + ':' + String(x).padStart(2,'0'); };
+const QL = { best: 'En iyi', '2160': '4K', '1440': '1440p', '1080': '1080p', '720': '720p', '480': '480p', '360': '360p' };
+
+// --- download view ---
+const urlIn = $('#url');
+$('#pasteBtn').onclick = async () => {
+  try { const t = (await navigator.clipboard.readText()).trim(); if (t) { urlIn.value = t; fetchInfo(); } else toast('Pano boş.'); }
+  catch { urlIn.focus(); toast('Ctrl+V ile yapıştırabilirsin.'); }
+};
+urlIn.addEventListener('paste', () => setTimeout(() => { if (/^https?:\/\//i.test(urlIn.value.trim())) fetchInfo(); }, 0));
+$('#urlForm').onsubmit = e => { e.preventDefault(); fetchInfo(); };
+
+let infoSeq = 0;
+async function fetchInfo(playlist) {
+  const url = urlIn.value.trim();
+  if (!url) { urlIn.focus(); return; }
+  if (!/^https?:\/\//i.test(url)) { showAlert('Geçerli bir bağlantı gir (https:// ile başlamalı).'); return; }
+  const seq = ++infoSeq;
+  showAlert(''); $('#preview').classList.remove('on'); $('#loading').classList.add('on'); $('#fetchBtn').disabled = true;
+  try {
+    const info = await api('info', { url, playlist: !!playlist });
+    if (seq !== infoSeq) return;
+    S.info = info; renderPreview(!!playlist);
+  } catch (e) { if (seq === infoSeq) showAlert(e.message); }
+  finally { if (seq === infoSeq) { $('#loading').classList.remove('on'); $('#fetchBtn').disabled = false; } }
+}
+function showAlert(msg) { const a = $('#alert'); a.textContent = msg; a.classList.toggle('on', !!msg); }
+
+function renderPreview(playlistOn) {
+  const i = S.info;
+  const th = $('#pvThumb');
+  th.classList.toggle('noimg', !i.thumbnail);
+  th.style.backgroundImage = '';
+  if (i.thumbnail) { const im = new Image(); im.onload = () => th.style.backgroundImage = `url("${i.thumbnail.replace(/"/g,'%22')}")`; im.onerror = () => th.classList.add('noimg'); im.referrerPolicy = 'no-referrer'; im.src = i.thumbnail; }
+  $('#pvDur').textContent = fmtTime(i.duration); $('#pvDur').hidden = !i.duration;
+  $('#pvSite').textContent = i.isPlaylist ? 'Liste · ' + (i.count || '?') + ' öğe' : (i.site || 'Bağlantı');
+  $('#pvTitle').textContent = i.title || i.url;
+  $('#pvSub').textContent = [i.uploader].filter(Boolean).join(' · ');
+  $('#pvList').innerHTML = (i.entries || []).map((t, k) => `<li><b>${k+1}.</b>${esc(t)}</li>`).join('') + (i.count > 8 ? `<li><b>…</b>ve ${i.count - 8} öğe daha</li>` : '');
+  const showPl = i.isPlaylist || i.hasList;
+  $('#plLabel').hidden = $('#plSwitch').hidden = !showPl;
+  $('#plToggle').checked = i.isPlaylist || playlistOn;
+  $('#plText').textContent = i.isPlaylist ? `Tüm listeyi indir (${i.count || '?'} öğe)` : 'Tüm listeyi indir';
+  S.mode = S.settings.mode || 'video'; S.quality = S.settings.quality || 'best'; S.audio = S.settings.audioFormat || 'mp3';
+  renderOpts();
+  $('#preview').classList.add('on');
+}
+$('#plToggle').onchange = e => { if (e.target.checked && S.info && !S.info.isPlaylist) fetchInfo(true); };
+
+function renderOpts() {
+  document.querySelectorAll('#modeSeg button').forEach(b => b.classList.toggle('on', b.dataset.m === S.mode));
+  const chips = $('#qChips');
+  if (S.mode === 'audio') {
+    $('#qLabel').textContent = 'Biçim';
+    chips.innerHTML = ['mp3','m4a','opus','flac','wav'].map(f => `<button type="button" class="chip ${S.audio===f?'on':''}" data-a="${f}">${f.toUpperCase()}</button>`).join('');
+  } else {
+    $('#qLabel').textContent = 'Kalite';
+    const hs = (S.info && S.info.heights && S.info.heights.length) ? S.info.heights.filter(h => h >= 360) : [2160,1440,1080,720,480,360];
+    const opts = ['best', ...hs.map(String).filter(h => QL[h])];
+    if (!opts.includes(S.quality)) S.quality = 'best';
+    const top = hs[0];
+    chips.innerHTML = opts.map(q => `<button type="button" class="chip ${S.quality===q?'on':''}" data-q="${q}">${QL[q]}${q==='best'&&top?`<small>${top>=2160?'4K':top+'p'}</small>`:''}</button>`).join('');
+  }
+  $('#where').textContent = 'Kaydedilecek yer: ' + (S.settings.downloadDir || '');
+}
+$('#modeSeg').onclick = e => { const b = e.target.closest('button'); if (b) { S.mode = b.dataset.m; renderOpts(); } };
+$('#qChips').onclick = e => { const b = e.target.closest('.chip'); if (!b) return; if (b.dataset.a) S.audio = b.dataset.a; else S.quality = b.dataset.q; renderOpts(); };
+
+$('#dlBtn').onclick = async () => {
+  const i = S.info; if (!i) return;
+  const playlist = $('#plToggle').checked && !$('#plSwitch').hidden;
+  try {
+    await api('download', { url: i.url, title: i.title, thumbnail: i.thumbnail, mode: S.mode, quality: S.quality, audioFormat: S.audio, playlist });
+    toast('İndirme başladı.');
+    $('#preview').classList.remove('on'); urlIn.value = ''; S.info = null; urlIn.focus();
+  } catch (e) { toast(e.message); }
+};
+
+// --- jobs ---
+const ACTIVE = new Set(['queued','starting','downloading','processing']);
+const STL = { queued: 'Sırada', starting: 'Başlatılıyor', downloading: 'İndiriliyor', processing: 'İşleniyor', done: 'Tamamlandı', error: 'Hata', canceled: 'İptal edildi' };
+function jobHTML(j, hist) {
+  const kind = j.mode === 'audio' ? (j.audioFormat || 'mp3').toUpperCase() : 'Video · ' + (QL[j.quality] || j.quality);
+  const meta = [`<span class="st ${j.status}">${esc(j.stage || STL[j.status])}</span>`, esc(kind)];
+  if (j.status === 'downloading') {
+    if (j.percent) meta.push(j.percent.toFixed(1).replace('.', ',') + '%');
+    if (j.total) meta.push(fmtBytes(j.done) + ' / ' + fmtBytes(j.total));
+    if (j.speed) meta.push(fmtBytes(j.speed) + '/sn');
+    if (j.eta) meta.push(fmtTime(j.eta) + ' kaldı');
+  }
+  if (j.items > 1 || (j.playlist && j.item)) meta.push(`${j.item || 0}/${j.items || '?'}`);
+  if (hist && j.finished) meta.push(new Date(j.finished).toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' }));
+  const indet = j.status === 'processing' || j.status === 'starting' || (j.status === 'downloading' && !j.total);
+  const file = (j.files && j.files[j.files.length - 1]) || '';
+  let act = '';
+  if (ACTIVE.has(j.status)) act = `<button class="icon-btn" data-act="cancel" title="İptal"><svg><use href="#i-x"/></svg></button>`;
+  else if (j.status === 'done' || hist) {
+    if (file && !j.playlist) act += `<button class="icon-btn" data-act="play" title="Aç"><svg><use href="#i-play"/></svg></button>`;
+    act += `<button class="icon-btn" data-act="reveal" title="Klasörde göster"><svg><use href="#i-folder"/></svg></button>`;
+    if (hist) act += `<button class="icon-btn" data-act="remove" title="Geçmişten kaldır"><svg><use href="#i-trash"/></svg></button>`;
+  } else act = `<button class="icon-btn" data-act="retry" title="Tekrar dene"><svg><use href="#i-retry"/></svg></button>`;
+  const sub = j.playlist && j.itemTitle && ACTIVE.has(j.status) ? `<div class="job-meta">${esc(j.itemTitle)}</div>` : '';
+  return `<div class="job ${j.status}" data-id="${esc(j.id)}" data-file="${esc(file)}">
+    <div class="thumb ${j.thumbnail ? '' : 'noimg'}" ${j.thumbnail ? `style="background-image:url(&quot;${esc(j.thumbnail)}&quot;)"` : ''}>${j.thumbnail ? '' : `<svg width="22" height="22"><use href="#${j.mode==='audio'?'i-music':'i-video'}"/></svg>`}</div>
+    <div style="min-width:0"><div class="job-title" title="${esc(j.title)}">${esc(j.title)}</div>${sub}
+      <div class="job-meta">${meta.join('<span>·</span>')}</div>
+      ${hist ? '' : `<div class="bar ${indet && ACTIVE.has(j.status) ? 'indet' : ''}"><i style="width:${j.status==='done'?100:(j.percent||0)}%"></i></div>`}
+      ${j.error ? `<div class="job-err">${esc(j.error)}</div>` : ''}
+    </div>
+    <div class="job-act">${act}</div></div>`;
+}
+const emptyHTML = (icon, text) => `<div class="empty"><svg><use href="#${icon}"/></svg><div>${text}</div></div>`;
+
+function renderJobs() {
+  const all = [...S.jobs.values()].sort((a, b) => b.created - a.created);
+  const active = all.filter(j => ACTIVE.has(j.status));
+  $('#activeHead').hidden = !active.length;
+  $('#activeJobs').innerHTML = active.map(j => jobHTML(j)).join('');
+  $('#allJobs').innerHTML = all.length ? all.map(j => jobHTML(j)).join('') : emptyHTML('i-dl', 'Henüz bir şey indirmedin.<br>“İndir” sekmesinden bir bağlantı yapıştırarak başla.');
+  const b = $('#badge'); b.textContent = active.length; b.hidden = !active.length;
+}
+function renderHistory() {
+  const q = $('#hSearch').value.trim().toLocaleLowerCase('tr');
+  const list = S.history.filter(h => !q || (h.title || '').toLocaleLowerCase('tr').includes(q) || (h.url || '').toLowerCase().includes(q));
+  $('#histJobs').innerHTML = list.length ? list.map(h => jobHTML(h, true)).join('') : emptyHTML('i-clock', q ? 'Eşleşen kayıt yok.' : 'Geçmiş boş.');
+}
+$('#hSearch').oninput = renderHistory;
+
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-act]'); if (!b) return;
+  const card = b.closest('.job'); const id = card.dataset.id; const file = card.dataset.file;
+  try {
+    switch (b.dataset.act) {
+      case 'cancel': await api('cancel', { id }); break;
+      case 'retry': await api('retry', { id }); break;
+      case 'play': await api('open', { path: file }); break;
+      case 'reveal': await api('open', file ? { path: file, reveal: true } : {}); break;
+      case 'remove': await api('history/remove', { id }); break;
+    }
+  } catch (err) { toast(err.message); }
+});
+$('#clearDone').onclick = () => api('clear', { what: 'jobs' });
+$('#clearHist').onclick = () => { if (confirm('Tüm geçmiş silinsin mi? (Dosyaların silinmez.)')) api('clear', { what: 'history' }); };
+$('#openDir').onclick = () => api('open', {}).catch(e => toast(e.message));
+
+// --- settings ---
+function renderSettings() {
+  const s = S.settings;
+  $('#sDir').textContent = s.downloadDir; $('#sDir').title = s.downloadDir;
+  $('#sMode').value = s.mode; $('#sQuality').value = s.quality; $('#sAudio').value = s.audioFormat;
+  $('#sConc').textContent = s.maxConcurrent; $('#sThumb').checked = !!s.embedThumb; $('#sSubs').checked = !!s.subtitles;
+  $('#sEngine').textContent = 'yt-dlp ' + (S.tools.version || '—');
+  if (S.info) renderOpts();
+}
+async function saveSettings(patch) {
+  try { S.settings = await api('settings', { ...S.settings, ...patch }); renderSettings(); toast('Kaydedildi.'); }
+  catch (e) { toast(e.message); }
+}
+$('#sMode').onchange = e => saveSettings({ mode: e.target.value });
+$('#sQuality').onchange = e => saveSettings({ quality: e.target.value });
+$('#sAudio').onchange = e => saveSettings({ audioFormat: e.target.value });
+$('#sThumb').onchange = e => saveSettings({ embedThumb: e.target.checked });
+$('#sSubs').onchange = e => saveSettings({ subtitles: e.target.checked });
+$('#cMinus').onclick = () => S.settings.maxConcurrent > 1 && saveSettings({ maxConcurrent: S.settings.maxConcurrent - 1 });
+$('#cPlus').onclick = () => S.settings.maxConcurrent < 5 && saveSettings({ maxConcurrent: S.settings.maxConcurrent + 1 });
+$('#sOpen').onclick = () => api('open', {}).catch(e => toast(e.message));
+$('#sPick').onclick = async () => { try { const r = await api('pick-folder'); if (r.path) saveSettings({ downloadDir: r.path }); } catch (e) { toast(e.message); } };
+$('#sUpdate').onclick = async e => {
+  const b = e.currentTarget; b.disabled = true; b.lastChild.textContent = 'Güncelleniyor…';
+  try { const r = await api('update-ytdlp', {}); S.tools.version = r.version; renderSettings(); toast(/up to date|güncel/i.test(r.output) ? 'Motor zaten güncel.' : 'Motor güncellendi: ' + r.version); }
+  catch (err) { toast(err.message); }
+  finally { b.disabled = false; b.lastChild.textContent = 'Güncelle'; }
+};
+
+// --- about ---
+$('#follow').onclick = () => api('open-url', { url: 'https://www.instagram.com/xsametsahinx/' }).catch(() => window.open('https://www.instagram.com/xsametsahinx/'));
+
+// --- setup ---
+function renderTools() {
+  const t = S.tools;
+  $('#setup').classList.toggle('on', !t.ready);
+  if (t.ready) return;
+  $('#setupStage').textContent = t.error ? 'Kurulum tamamlanamadı' : (t.stage ? `${t.stage} · %${t.percent}` : 'Başlatılıyor…');
+  $('#setupBar i').style.width = (t.percent || 0) + '%';
+  $('#setupBar').classList.toggle('indet', !t.percent && !t.error);
+  $('#setupErr').textContent = t.error ? t.error + ' — İnternet bağlantını kontrol edip tekrar dene.' : '';
+  $('#setupErr').classList.toggle('on', !!t.error);
+  $('#setupRetry').hidden = !t.error;
+}
+$('#setupRetry').onclick = () => api('setup', {}).then(() => { S.tools.error = ''; renderTools(); });
+
+// --- events ---
+function connect() {
+  const es = new EventSource('/api/events?t=' + encodeURIComponent(T));
+  es.onmessage = ev => {
+    const msg = JSON.parse(ev.data);
+    if (msg.type === 'job') { S.jobs.set(msg.data.id, msg.data); renderJobs(); }
+    else if (msg.type === 'jobs') { S.jobs = new Map(msg.data.map(j => [j.id, j])); renderJobs(); }
+    else if (msg.type === 'history') { S.history = msg.data; renderHistory(); }
+    else if (msg.type === 'tools') { const wasReady = S.tools.ready; S.tools = msg.data; renderTools(); renderSettings(); if (!wasReady && S.tools.ready) toast('NOVA hazır!'); }
+  };
+  es.onerror = () => { es.close(); setTimeout(() => connect(), 1500); };
+}
+
+window.addEventListener('beforeunload', e => { if ([...S.jobs.values()].some(j => ACTIVE.has(j.status))) { e.preventDefault(); e.returnValue = ''; } });
+
+async function init() {
+  try {
+    const st = await api('state');
+    S.settings = st.settings; S.tools = st.tools; S.history = st.history || [];
+    st.jobs.forEach(j => S.jobs.set(j.id, j));
+    $('#ver').textContent = 'v' + st.version; $('#aboutVer').textContent = 'Sürüm ' + st.version;
+    renderSettings(); renderJobs(); renderHistory(); renderTools();
+    if (!st.tools.ready && !st.tools.busy) api('setup', {});
+    connect();
+    try { const v = sessionStorage.getItem('novaView'); if (v) go(v); } catch {}
+    urlIn.focus();
+  } catch (e) {
+    document.body.innerHTML = `<div style="display:grid;place-items:center;height:100vh;color:#aaa;font:15px system-ui;text-align:center">NOVA'ya bağlanılamadı.<br>Uygulamayı kapatıp yeniden aç.<br><small style="color:#666">${esc(e.message)}</small></div>`;
+  }
+}
+init();
+})();
+</script>
+</body>
+</html>
