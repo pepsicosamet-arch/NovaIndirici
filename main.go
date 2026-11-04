@@ -95,18 +95,24 @@ func (s *Settings) Snapshot() Settings {
 
 type Hub struct {
 	mu      sync.Mutex
-	clients map[chan []byte]struct{}
+	clients map[chan []byte]string // kanal -> oturum (masaüstünde "")
 	idle    *time.Timer
 	seen    bool
 }
 
-func NewHub() *Hub { return &Hub{clients: map[chan []byte]struct{}{}} }
+func NewHub() *Hub { return &Hub{clients: map[chan []byte]string{}} }
 
-func (h *Hub) Broadcast(kind string, payload any) {
+func (h *Hub) Broadcast(kind string, payload any) { h.BroadcastTo("", kind, payload) }
+
+// BroadcastTo olayı yalnızca ilgili oturuma gönderir; owner "" ise herkese.
+func (h *Hub) BroadcastTo(owner, kind string, payload any) {
 	b, _ := json.Marshal(map[string]any{"type": kind, "data": payload})
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	for c := range h.clients {
+	for c, sid := range h.clients {
+		if owner != "" && sid != owner {
+			continue
+		}
 		select {
 		case c <- b:
 		default:
@@ -114,10 +120,10 @@ func (h *Hub) Broadcast(kind string, payload any) {
 	}
 }
 
-func (h *Hub) add(c chan []byte) {
+func (h *Hub) add(c chan []byte, sid string) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	h.clients[c] = struct{}{}
+	h.clients[c] = sid
 	h.seen = true
 	if h.idle != nil {
 		h.idle.Stop()
@@ -129,7 +135,7 @@ func (h *Hub) remove(c chan []byte) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 	delete(h.clients, c)
-	if len(h.clients) == 0 && os.Getenv("NOVA_NO_AUTOEXIT") == "" {
+	if len(h.clients) == 0 && !serverMode && os.Getenv("NOVA_NO_AUTOEXIT") == "" {
 		// Pencere kapandıysa uygulamayı kapat (yenileme için kısa bir pay bırak).
 		h.idle = time.AfterFunc(10*time.Second, func() {
 			h.mu.Lock()
@@ -191,6 +197,10 @@ func guard(next http.HandlerFunc) http.HandlerFunc {
 
 func main() {
 	if handleCLI() {
+		return
+	}
+	if os.Getenv("NOVA_SERVER") != "" {
+		runServer()
 		return
 	}
 	base, err := os.UserCacheDir() // Windows: %LOCALAPPDATA%
@@ -320,7 +330,7 @@ func handleEvents(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/event-stream")
 	w.Header().Set("Cache-Control", "no-cache")
 	c := make(chan []byte, 64)
-	hub.add(c)
+	hub.add(c, sessionID(w, r))
 	defer hub.remove(c)
 	fmt.Fprintf(w, ": hello\n\n")
 	fl.Flush()

@@ -33,6 +33,23 @@ Kurulum istemeyenler için taşınabilir sürüm: [NOVA-Indirici.exe](https://gi
 
 Bir sorun mu yaşadın ya da aklında bir fikir mi var? **[samet.sahin.iletisim@gmail.com](mailto:samet.sahin.iletisim@gmail.com)**
 
+## 🌍 Web sürümü (sunucu)
+
+NOVA aynı kodla bir sunucuda da çalışır: ziyaretçi bağlantıyı yapıştırır, dosya sunucuda hazırlanır ve bitince tarayıcıdan bilgisayarına iner.
+
+- Her ziyaretçi yalnızca kendi indirmelerini görür (çerezle ayrılır).
+- Dosyalar 30 dakika sonra sunucudan otomatik silinir.
+- Sınırlar: kişi başı aynı anda 2 indirme, saatte 20 indirme, dosya başına 2 GB, listelerde en fazla 10 öğe (`render.yaml` içinden değiştirilebilir).
+- İç ağ adreslerine (127.0.0.1, 10.x, 169.254.x …) istek engellenir.
+- İndirme motoru (yt-dlp) 12 saatte bir kendini günceller.
+
+**Render.com ile kurulum:** Render'da **New → Blueprint** seçip bu depoyu bağla; `render.yaml` her şeyi ayarlar. Her `git push` sonrası sunucu otomatik yeniden kurulur.
+
+**Kendi sunucunda (Docker):**
+
+    docker build -t nova-web .
+    docker run -d -p 8080:8080 --restart unless-stopped nova-web
+
 ---
 
 ## Geliştiriciler için

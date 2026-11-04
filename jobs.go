@@ -202,6 +202,7 @@ type Job struct {
 	Finished  int64    `json:"finished"`
 	cancel    context.CancelFunc
 	canceled  bool
+	owner     string // web sürümünde işi başlatan oturum
 }
 
 type JobView struct {
@@ -275,7 +276,22 @@ func (m *JobManager) History() []JobView {
 	return append([]JobView{}, m.history...)
 }
 
-func (m *JobManager) Add(req JobRequest) *Job {
+// ListFor yalnızca verilen oturumun işlerini döndürür ("" = hepsi).
+func (m *JobManager) ListFor(owner string) []JobView {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	out := make([]JobView, 0, len(m.jobs))
+	for _, j := range m.jobs {
+		if owner == "" || j.owner == owner {
+			out = append(out, j.View())
+		}
+	}
+	return out
+}
+
+func (m *JobManager) Add(req JobRequest) *Job { return m.AddFor(req, "") }
+
+func (m *JobManager) AddFor(req JobRequest, owner string) *Job {
 	s := settings.Snapshot()
 	if req.Mode != "audio" {
 		req.Mode = "video"
@@ -289,7 +305,7 @@ func (m *JobManager) Add(req JobRequest) *Job {
 	m.mu.Lock()
 	m.seq++
 	j := &Job{JobRequest: req, ID: fmt.Sprintf("j%d-%d", time.Now().Unix(), m.seq), Status: "queued",
-		Stage: "Sırada", Created: time.Now().UnixMilli()}
+		Stage: "Sırada", Created: time.Now().UnixMilli(), owner: owner}
 	if j.Title == "" {
 		j.Title = req.URL
 	}
@@ -300,7 +316,7 @@ func (m *JobManager) Add(req JobRequest) *Job {
 	return j
 }
 
-func (m *JobManager) emit(j *Job) { hub.Broadcast("job", j.View()) }
+func (m *JobManager) emit(j *Job) { hub.BroadcastTo(j.owner, "job", j.View()) }
 
 func (m *JobManager) find(id string) *Job {
 	m.mu.Lock()
@@ -384,20 +400,30 @@ func (m *JobManager) Retry(id string) {
 	m.Pump()
 }
 
-func (m *JobManager) ClearFinished() {
+func (m *JobManager) ClearFinished() { m.ClearFinishedFor("") }
+
+func (m *JobManager) ClearFinishedFor(owner string) {
 	m.mu.Lock()
 	keep := m.jobs[:0]
+	var removed []string
 	for _, j := range m.jobs {
 		j.mu.Lock()
 		st := j.Status
 		j.mu.Unlock()
-		if st != "done" && st != "error" && st != "canceled" {
-			keep = append(keep, j)
+		if (owner == "" || j.owner == owner) && (st == "done" || st == "error" || st == "canceled") {
+			removed = append(removed, j.ID)
+			continue
 		}
+		keep = append(keep, j)
 	}
 	m.jobs = keep
 	m.mu.Unlock()
-	hub.Broadcast("jobs", m.List())
+	if serverMode {
+		for _, id := range removed {
+			_ = os.RemoveAll(filepath.Join(dataDir, "files", id))
+		}
+	}
+	hub.BroadcastTo(owner, "jobs", m.ListFor(owner))
 }
 
 func (m *JobManager) ClearHistory() {
@@ -469,7 +495,11 @@ func (m *JobManager) run(j *Job) {
 	_ = os.MkdirAll(tmpDir, 0o755)
 	defer os.RemoveAll(tmpDir)
 
-	_ = os.MkdirAll(s.DownloadDir, 0o755)
+	dest := s.DownloadDir
+	if serverMode {
+		dest = filepath.Join(dataDir, "files", j.ID)
+	}
+	_ = os.MkdirAll(dest, 0o755)
 	outTpl := "%(title).150B [%(id)s].%(ext)s"
 	if req.Playlist {
 		outTpl = "%(playlist_title,playlist_id|Liste).100B/%(playlist_index|0)03d - %(title).140B.%(ext)s"
@@ -486,6 +516,9 @@ func (m *JobManager) run(j *Job) {
 		args = append(args, "--no-playlist")
 	}
 	args = append(args, qualityArgs(req, s)...)
+	if serverMode {
+		args = append(args, "--max-filesize", srvMaxFile, "--playlist-items", fmt.Sprintf("1-%d", srvMaxItems))
+	}
 	args = append(args, "--", req.URL)
 
 	cmd := ytdlpCmd(ctx, args...)
@@ -544,7 +577,7 @@ func (m *JobManager) run(j *Job) {
 		errMu.Unlock()
 		m.finish(j, "error", msg)
 	default:
-		if err := m.moveOut(j, filepath.Join(tmpDir, "out"), s.DownloadDir); err != nil {
+		if err := m.moveOut(j, filepath.Join(tmpDir, "out"), dest); err != nil {
 			m.finish(j, "error", "Dosya indirme klasörüne taşınamadı: "+err.Error())
 			return
 		}
@@ -714,7 +747,7 @@ func (m *JobManager) finish(j *Job, status, msg string) {
 	j.mu.Unlock()
 	v := j.View()
 	log.Printf("[%s] %s %s", j.ID, status, msg)
-	if status == "done" {
+	if status == "done" && !serverMode {
 		m.mu.Lock()
 		m.history = append([]JobView{v}, m.history...)
 		m.saveHistoryLocked()

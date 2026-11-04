@@ -30,7 +30,15 @@ func exe(name string) string {
 	return name
 }
 
-func ytdlpPath() string { return filepath.Join(binDir, exe("yt-dlp")) }
+func ytdlpPath() string {
+	p := filepath.Join(binDir, exe("yt-dlp"))
+	if _, err := os.Stat(p); err != nil && runtime.GOOS != "windows" {
+		if sys := lookTool("yt-dlp"); sys != "" {
+			return sys
+		}
+	}
+	return p
+}
 func ffmpegPath() string {
 	p := filepath.Join(binDir, exe("ffmpeg"))
 	if _, err := os.Stat(p); err != nil && runtime.GOOS != "windows" {
