@@ -4,6 +4,8 @@ Bağlantıyı yapıştır, gerisini NOVA halletsin. YouTube, Instagram, TikTok, 
 
 <p align="center"><img src="web/logo.png" width="160" alt="NOVA İndirici"></p>
 
+🌐 **Web sitesi:** https://sametsahiniletisim-hue.github.io/nova-indirici/
+
 ## ⬇️ İndir
 
 **[NOVA-Indirici-Setup.exe](https://github.com/sametsahiniletisim-hue/nova-indirici/raw/main/dist/NOVA-Indirici-Setup.exe)** (Windows 10 / 11, 64 bit) indir ve çalıştır. Kurulum birkaç saniye sürer, yönetici izni gerekmez.
