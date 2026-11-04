@@ -4,7 +4,7 @@ Bağlantıyı yapıştır, gerisini NOVA halletsin. YouTube, Instagram, TikTok, 
 
 <p align="center"><img src="web/logo.png" width="160" alt="NOVA İndirici"></p>
 
-🌐 **Web sitesi:** https://sametsahiniletisim-hue.github.io/nova-indirici/
+🌐 **Web sitesi:** [novaindirici.com](https://novaindirici.com)
 
 ## ⬇️ İndir
 
