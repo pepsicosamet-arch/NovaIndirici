@@ -2,6 +2,7 @@ package main
 
 import (
 	"archive/zip"
+	"compress/gzip"
 	"context"
 	"errors"
 	"fmt"
@@ -21,6 +22,9 @@ const (
 	ytdlpURLWin  = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe"
 	ytdlpURLUnix = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp"
 	ffmpegURLWin = "https://github.com/yt-dlp/FFmpeg-Builds/releases/download/latest/ffmpeg-master-latest-win64-gpl.zip"
+	ytdlpURLMac  = "https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp_macos"
+	// macOS için hazır FFmpeg (ffmpeg-static projesi), mimariye göre seçilir.
+	ffmpegMacBase = "https://github.com/eugeneware/ffmpeg-static/releases/download/b6.0/"
 )
 
 func exe(name string) string {
@@ -144,8 +148,11 @@ func EnsureTools() {
 func ensureTools() error {
 	if !exists(ytdlpPath()) {
 		u := ytdlpURLUnix
-		if runtime.GOOS == "windows" {
+		switch runtime.GOOS {
+		case "windows":
 			u = ytdlpURLWin
+		case "darwin":
+			u = ytdlpURLMac
 		}
 		if err := downloadFile(u, ytdlpPath(), "yt-dlp indiriliyor"); err != nil {
 			return fmt.Errorf("yt-dlp indirilemedi: %w", err)
@@ -153,6 +160,9 @@ func ensureTools() error {
 		_ = os.Chmod(ytdlpPath(), 0o755)
 	}
 	if !exists(ffmpegPath()) {
+		if runtime.GOOS == "darwin" {
+			return ensureFFmpegMac()
+		}
 		if runtime.GOOS != "windows" {
 			return errors.New("ffmpeg bulunamadı; sisteminize ffmpeg kurun")
 		}
@@ -277,4 +287,57 @@ func UpdateYtdlp() (string, error) {
 func lastLine(s string) string {
 	lines := strings.Split(strings.TrimSpace(s), "\n")
 	return strings.TrimSpace(lines[len(lines)-1])
+}
+
+// ensureFFmpegMac ffmpeg ve ffprobe'u (gzip) indirip açar.
+func ensureFFmpegMac() error {
+	arch := "x64"
+	if runtime.GOARCH == "arm64" {
+		arch = "arm64"
+	}
+	for _, name := range []string{"ffmpeg", "ffprobe"} {
+		dst := filepath.Join(binDir, name)
+		if exists(dst) {
+			continue
+		}
+		gz := dst + ".gz.part"
+		label := "FFmpeg indiriliyor"
+		if name == "ffprobe" {
+			label = "FFprobe indiriliyor"
+		}
+		if err := downloadFile(ffmpegMacBase+name+"-darwin-"+arch+".gz", gz, label); err != nil {
+			return fmt.Errorf("%s indirilemedi: %w", name, err)
+		}
+		if err := gunzipTo(gz, dst); err != nil {
+			return fmt.Errorf("%s açılamadı: %w", name, err)
+		}
+		_ = os.Remove(gz)
+		_ = os.Chmod(dst, 0o755)
+	}
+	return nil
+}
+
+func gunzipTo(src, dst string) error {
+	f, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	zr, err := gzip.NewReader(f)
+	if err != nil {
+		return err
+	}
+	defer zr.Close()
+	out, err := os.Create(dst + ".tmp")
+	if err != nil {
+		return err
+	}
+	if _, err := io.Copy(out, zr); err != nil {
+		out.Close()
+		return err
+	}
+	if err := out.Close(); err != nil {
+		return err
+	}
+	return os.Rename(dst+".tmp", dst)
 }

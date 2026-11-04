@@ -652,7 +652,7 @@ function renderUpdate() {
 $('#updLater').onclick = () => { updHidden = true; renderUpdate(); };
 $('#updGo').onclick = () => {
   if ([...S.jobs.values()].some(j => ACTIVE.has(j.status)) && !confirm('Devam eden indirmeler iptal edilecek. Güncellensin mi?')) return;
-  api('update/install', {}).catch(e => toast(e.message));
+  api('update/install', {}).then(() => { if (S.os === 'darwin') toast("Yeni sürüm indiriliyor. DMG'yi açıp NOVA'yı Uygulamalar klasörüne sürükle."); }).catch(e => toast(e.message));
 };
 $('#sCheck').onclick = async e => {
   const b = e.currentTarget; b.disabled = true;
@@ -680,6 +680,7 @@ async function init() {
   try {
     const st = await api('state');
     S.settings = st.settings; S.tools = st.tools; S.history = st.history || [];
+    S.os = st.os;
     st.jobs.forEach(j => S.jobs.set(j.id, j));
     S.update = st.update; renderUpdate();
     $('#ver').textContent = 'v' + st.version; $('#aboutVer').textContent = 'Sürüm ' + st.version;

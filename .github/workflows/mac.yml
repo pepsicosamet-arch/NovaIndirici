@@ -1,0 +1,62 @@
+name: macOS paketi
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['*.go', 'go.mod', 'web/**', 'packaging/mac/**', '.github/workflows/mac.yml', 'dist/latest.json']
+permissions:
+  contents: write
+concurrency:
+  group: dist-commit
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - name: Sürümü oku
+        run: echo "VER=$(python3 -c "import json;print(json.load(open('dist/latest.json'))['version'])")" >> "$GITHUB_ENV"
+      - name: Derle (Apple Silicon + Intel)
+        run: |
+          mkdir -p build
+          for a in arm64 amd64; do
+            GOOS=darwin GOARCH=$a CGO_ENABLED=0 go build -trimpath -ldflags "-s -w -X main.AppVersion=$VER" -o build/nova-$a .
+          done
+          lipo -create -output build/nova build/nova-arm64 build/nova-amd64
+          lipo -info build/nova
+      - name: Uygulama paketi ve DMG
+        run: |
+          APP="build/dmg/NOVA İndirici.app"
+          mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
+          cp build/nova "$APP/Contents/MacOS/nova"
+          cp packaging/mac/nova.icns "$APP/Contents/Resources/nova.icns"
+          sed "s/__VERSION__/$VER/g" packaging/mac/Info.plist > "$APP/Contents/Info.plist"
+          plutil -lint "$APP/Contents/Info.plist"
+          codesign --force --deep --sign - "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          ln -s /Applications build/dmg/Applications
+          hdiutil create -volname "NOVA İndirici" -srcfolder build/dmg -ov -format UDZO build/NOVA-Indirici-Mac.dmg
+          ls -la build
+      - name: Kısa test (sunucu açılıyor mu)
+        run: |
+          NOVA_NO_BROWSER=1 NOVA_NO_AUTOEXIT=1 "build/dmg/NOVA İndirici.app/Contents/MacOS/nova" &
+          sleep 3
+          curl -fs http://127.0.0.1:47319/api/ping
+          kill %1 || true
+      - name: dist klasörüne ekle
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for i in 1 2 3 4 5; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            cp build/NOVA-Indirici-Mac.dmg dist/NOVA-Indirici-Mac.dmg
+            git add dist/NOVA-Indirici-Mac.dmg
+            if git diff --cached --quiet; then echo "değişiklik yok"; exit 0; fi
+            git commit -q -m "macOS paketi v$VER [skip ci]"
+            if git push -q origin HEAD:main; then exit 0; fi
+            sleep 10
+          done
+          exit 1

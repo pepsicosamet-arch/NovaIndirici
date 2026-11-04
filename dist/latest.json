@@ -1,5 +1,7 @@
 {
-  "version": "1.4.1",
-  "notes": "Web sitesi adresi güncellendi: novaindirici.com.tr",
-  "url": "https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"
+  "version": "1.5.0",
+  "notes": "Mac ve Android sürümleri yayında! Windows'ta küçük iyileştirmeler.",
+  "url": "https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe",
+  "mac": "https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Mac.dmg",
+  "android": "https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Android.apk"
 }

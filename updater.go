@@ -104,6 +104,7 @@ func CheckUpdate() error {
 		var li struct {
 			Version string `json:"version"`
 			URL     string `json:"url"`
+			Mac     string `json:"mac"`
 			Notes   string `json:"notes"`
 		}
 		if err := json.NewDecoder(io.LimitReader(resp.Body, 1<<20)).Decode(&li); err != nil {
@@ -112,8 +113,11 @@ func CheckUpdate() error {
 		updMu.Lock()
 		upd.Latest, upd.Notes = li.Version, li.Notes
 		upd.url = li.URL
+		if runtime.GOOS == "darwin" {
+			upd.url = li.Mac
+		}
 		// Güvenlik: yalnızca NOVA deposundan gelen kurulum dosyaları kabul edilir.
-		upd.Available = newer(li.Version, AppVersion) && strings.HasPrefix(li.URL, RepoBase)
+		upd.Available = newer(li.Version, AppVersion) && strings.HasPrefix(upd.url, RepoBase)
 		updMu.Unlock()
 		return nil
 	}()
@@ -148,6 +152,16 @@ func setUpd(stage string, pct int) {
 
 // InstallUpdate yeni kurulum dosyasını indirip sessiz kurulumla çalıştırır.
 func InstallUpdate() error {
+	if runtime.GOOS == "darwin" {
+		// Mac: yeni DMG'yi tarayıcıda indir; kullanıcı uygulamayı Applications'a sürükler.
+		updMu.Lock()
+		u, ok := upd.url, upd.Available
+		updMu.Unlock()
+		if !ok || u == "" {
+			return errors.New("Kurulacak güncelleme yok.")
+		}
+		return openURL(u)
+	}
 	if runtime.GOOS != "windows" {
 		return errors.New("Otomatik güncelleme yalnızca Windows'ta çalışır.")
 	}

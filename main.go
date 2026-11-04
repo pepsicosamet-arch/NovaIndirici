@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"sync"
 	"time"
@@ -194,6 +195,9 @@ func main() {
 		return
 	}
 	base, err := os.UserCacheDir() // Windows: %LOCALAPPDATA%
+	if runtime.GOOS == "darwin" {
+		base, err = os.UserConfigDir() // macOS: ~/Library/Application Support
+	}
 	if err != nil {
 		base = os.TempDir()
 	}
@@ -303,6 +307,7 @@ func fatal(msg string) {
 func handleState(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{
 		"version":  AppVersion,
+		"os":       runtime.GOOS,
 		"update":   updateSnapshot(),
 		"tools":    toolStatus(),
 		"settings": settings.Snapshot(),
