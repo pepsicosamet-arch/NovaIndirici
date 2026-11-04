@@ -1,7 +1,0 @@
-# NOVA İndirici web sürümü — HTTPS sertifikası otomatik alınır.
-app.novaindirici.com.tr {
-	encode gzip
-	reverse_proxy nova:8080 {
-		flush_interval -1
-	}
-}
