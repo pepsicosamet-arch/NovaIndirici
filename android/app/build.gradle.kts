@@ -21,7 +21,6 @@ android {
         targetSdk = 34
         versionName = novaVersion
         versionCode = versionCodeOf(novaVersion)
-        ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
     }
 
     signingConfigs {
