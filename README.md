@@ -21,7 +21,15 @@ Kurulum istemeyenler için taşınabilir sürüm: [NOVA-Indirici.exe](https://gi
 - Aynı anda birden fazla indirme, geçmiş ve arama
 - Reklamsız, hesap istemez, veri toplamaz
 
-Geliştiren: **Samet Şahin** · [@xsametsahinx](https://www.instagram.com/xsametsahinx/)
+## 👤 Geliştirici
+
+**Samet Şahin** · NOVA'yı tasarlayan ve geliştiren kişi. Yeni özellikleri, geliştirme sürecini ve perde arkasını sosyal medyada paylaşıyorum.
+
+[Instagram](https://www.instagram.com/xsametsahinx/) · [TikTok](https://www.tiktok.com/@xsametsahinx) · [YouTube](https://www.youtube.com/@xsametsahinx) · [X (Twitter)](https://x.com/xsametsahinx)
+
+## ✉️ Şikayet ve öneri
+
+Bir sorun mu yaşadın ya da aklında bir fikir mi var? **[samet.sahin.iletisim@gmail.com](mailto:samet.sahin.iletisim@gmail.com)**
 
 ---
 

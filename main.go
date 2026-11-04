@@ -486,7 +486,7 @@ func handleOpen(w http.ResponseWriter, r *http.Request) {
 func handleOpenURL(w http.ResponseWriter, r *http.Request) {
 	var req struct{ URL string }
 	_ = readBody(r, &req)
-	if !strings.HasPrefix(req.URL, "https://") {
+	if !strings.HasPrefix(req.URL, "https://") && !strings.HasPrefix(req.URL, "mailto:samet.sahin.iletisim@gmail.com") {
 		fail(w, 400, "Geçersiz bağlantı.")
 		return
 	}
