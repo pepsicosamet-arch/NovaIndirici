@@ -233,6 +233,7 @@ select{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;
     <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></symbol>
     <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></symbol>
+    <symbol id="i-magnet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v8a6 6 0 0 0 12 0V3"/><path d="M6 3h4v8a2 2 0 0 0 4 0V3h4"/><path d="M6 7h4M14 7h4"/></symbol>
     <symbol id="i-insta" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r=".6" fill="currentColor"/></symbol>
   </defs>
 </svg>
@@ -264,11 +265,13 @@ select{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;
       <p class="sub">Videoyu ya da sesi tek tıkla, istediğin kalitede bilgisayarına indir.</p>
       <form class="urlbar" id="urlForm" autocomplete="off">
         <svg><use href="#i-link"/></svg>
-        <input id="url" placeholder="https://www.youtube.com/watch?v=…" spellcheck="false">
+        <input id="url" placeholder="Video bağlantısı ya da magnet:?xt=… yapıştır" spellcheck="false">
         <button type="button" class="btn ghost" id="pasteBtn" title="Panodan yapıştır"><svg><use href="#i-paste"/></svg>Yapıştır</button>
+        <button type="button" class="btn ghost desk-only" id="torBtn" title=".torrent dosyası seç"><svg><use href="#i-magnet"/></svg>Torrent</button>
+        <input type="file" id="torFile" accept=".torrent,application/x-bittorrent" hidden>
         <button type="submit" class="btn primary" id="fetchBtn">Getir</button>
       </form>
-      <div class="sites"><span>YouTube</span><span>Instagram</span><span>TikTok</span><span>X / Twitter</span><span>Facebook</span><span>SoundCloud</span><span>Vimeo</span><span>Twitch</span><span>+1000 site</span></div>
+      <div class="sites"><span>YouTube</span><span>Instagram</span><span>TikTok</span><span>X / Twitter</span><span>Facebook</span><span>SoundCloud</span><span>Vimeo</span><span>Twitch</span><span>+1000 site</span><span class="desk-only" style="border-color:#5a2a2e;color:#ff9a90">Torrent · Magnet</span></div>
 
       <div class="loading" id="loading"><div class="spin"></div><span>Bağlantı inceleniyor…</span></div>
       <div class="alert" id="alert"></div>
@@ -449,14 +452,14 @@ $('#pasteBtn').onclick = async () => {
   try { const t = (await navigator.clipboard.readText()).trim(); if (t) { urlIn.value = t; fetchInfo(); } else toast('Pano boş.'); }
   catch { urlIn.focus(); toast('Ctrl+V ile yapıştırabilirsin.'); }
 };
-urlIn.addEventListener('paste', () => setTimeout(() => { if (/^https?:\/\//i.test(urlIn.value.trim())) fetchInfo(); }, 0));
+urlIn.addEventListener('paste', () => setTimeout(() => { if (/^(https?:\/\/|magnet:\?)/i.test(urlIn.value.trim())) fetchInfo(); }, 0));
 $('#urlForm').onsubmit = e => { e.preventDefault(); fetchInfo(); };
 
 let infoSeq = 0;
 async function fetchInfo(playlist) {
   const url = urlIn.value.trim();
   if (!url) { urlIn.focus(); return; }
-  if (!/^https?:\/\//i.test(url)) { showAlert('Geçerli bir bağlantı gir (https:// ile başlamalı).'); return; }
+  if (!/^(https?:\/\/|magnet:\?)/i.test(url)) { showAlert('Geçerli bir bağlantı gir (https:// ya da magnet: ile başlamalı).'); return; }
   const seq = ++infoSeq;
   showAlert(''); $('#preview').classList.remove('on'); $('#loading').classList.add('on'); $('#fetchBtn').disabled = true;
   try {
@@ -484,9 +487,32 @@ function renderPreview(playlistOn) {
   $('#plToggle').checked = i.isPlaylist || playlistOn;
   $('#plText').textContent = i.isPlaylist ? `Tüm listeyi indir (${i.count || '?'} öğe)` : 'Tüm listeyi indir';
   S.mode = S.settings.mode || 'video'; S.quality = S.settings.quality || 'best'; S.audio = S.settings.audioFormat || 'mp3';
+  const tor = !!i.isTorrent;
+  document.querySelector('#preview .opts').hidden = tor;
+  if (tor) {
+    th.classList.add('noimg'); $('#pvDur').hidden = true;
+    $('#pvSub').textContent = i.torrent ? 'Torrent dosyası · ' + fmtBytes(i.size || 0) : 'Magnet bağlantısı';
+    $('#pvList').innerHTML = '<li>Torrent tamamlanınca paylaşım (seed) yapılmaz; dosya doğrudan indirme klasörüne kaydedilir.</li><li style="color:var(--dim)">Yalnızca paylaşma hakkı olan içerikleri indir.</li>';
+  }
   renderOpts();
   $('#preview').classList.add('on');
 }
+function loadTorrentFile(f) {
+  if (!f) return;
+  if (!/\.torrent$/i.test(f.name)) { toast('Lütfen .torrent uzantılı bir dosya seç.'); return; }
+  if (f.size > 10 * 1024 * 1024) { toast('Torrent dosyası çok büyük.'); return; }
+  const r = new FileReader();
+  r.onload = () => {
+    const b64 = String(r.result).split(',')[1] || '';
+    S.info = { isTorrent: true, torrent: b64, size: f.size, title: f.name.replace(/\.torrent$/i, ''), site: 'Torrent' };
+    showAlert(''); urlIn.value = ''; renderPreview(false); go('download');
+  };
+  r.readAsDataURL(f);
+}
+$('#torBtn').onclick = () => $('#torFile').click();
+$('#torFile').onchange = e => { loadTorrentFile(e.target.files[0]); e.target.value = ''; };
+document.addEventListener('dragover', e => { if ([...(e.dataTransfer?.items || [])].some(x => x.kind === 'file')) e.preventDefault(); });
+document.addEventListener('drop', e => { const f = e.dataTransfer?.files?.[0]; if (f && /\.torrent$/i.test(f.name)) { e.preventDefault(); loadTorrentFile(f); } });
 $('#plToggle').onchange = e => { if (e.target.checked && S.info && !S.info.isPlaylist) fetchInfo(true); };
 
 function renderOpts() {
@@ -512,7 +538,8 @@ $('#dlBtn').onclick = async () => {
   const i = S.info; if (!i) return;
   const playlist = $('#plToggle').checked && !$('#plSwitch').hidden;
   try {
-    await api('download', { url: i.url, title: i.title, thumbnail: i.thumbnail, mode: S.mode, quality: S.quality, audioFormat: S.audio, playlist });
+    await api('download', i.isTorrent ? { url: i.url || '', title: i.title, mode: 'torrent', torrent: i.torrent || '' }
+      : { url: i.url, title: i.title, thumbnail: i.thumbnail, mode: S.mode, quality: S.quality, audioFormat: S.audio, playlist });
     toast('İndirme başladı.');
     $('#preview').classList.remove('on'); urlIn.value = ''; S.info = null; urlIn.focus();
   } catch (e) { toast(e.message); }
@@ -522,7 +549,7 @@ $('#dlBtn').onclick = async () => {
 const ACTIVE = new Set(['queued','starting','downloading','processing']);
 const STL = { queued: 'Sırada', starting: 'Başlatılıyor', downloading: 'İndiriliyor', processing: 'İşleniyor', done: 'Tamamlandı', error: 'Hata', canceled: 'İptal edildi' };
 function jobHTML(j, hist) {
-  const kind = j.mode === 'audio' ? (j.audioFormat || 'mp3').toUpperCase() : 'Video · ' + (QL[j.quality] || j.quality);
+  const kind = j.mode === 'torrent' ? 'Torrent' : j.mode === 'audio' ? (j.audioFormat || 'mp3').toUpperCase() : 'Video · ' + (QL[j.quality] || j.quality);
   const meta = [`<span class="st ${j.status}">${esc(j.stage || STL[j.status])}</span>`, esc(kind)];
   if (j.status === 'downloading') {
     if (j.percent) meta.push(j.percent.toFixed(1).replace('.', ',') + '%');
@@ -537,13 +564,13 @@ function jobHTML(j, hist) {
   let act = '';
   if (ACTIVE.has(j.status)) act = `<button class="icon-btn" data-act="cancel" title="İptal"><svg><use href="#i-x"/></svg></button>`;
   else if (j.status === 'done' || hist) {
-    if (file && !j.playlist) act += `<button class="icon-btn" data-act="play" title="Aç"><svg><use href="#i-play"/></svg></button>`;
+    if (file && !j.playlist && !(j.mode === 'torrent' && (j.files || []).length > 1)) act += `<button class="icon-btn" data-act="play" title="Aç"><svg><use href="#i-play"/></svg></button>`;
     act += `<button class="icon-btn" data-act="reveal" title="Klasörde göster"><svg><use href="#i-folder"/></svg></button>`;
     if (hist) act += `<button class="icon-btn" data-act="remove" title="Geçmişten kaldır"><svg><use href="#i-trash"/></svg></button>`;
   } else act = `<button class="icon-btn" data-act="retry" title="Tekrar dene"><svg><use href="#i-retry"/></svg></button>`;
-  const sub = j.playlist && j.itemTitle && ACTIVE.has(j.status) ? `<div class="job-meta">${esc(j.itemTitle)}</div>` : '';
+  const sub = (j.playlist || j.mode === 'torrent') && j.itemTitle && ACTIVE.has(j.status) ? `<div class="job-meta">${esc(j.itemTitle)}</div>` : '';
   return `<div class="job ${j.status}" data-id="${esc(j.id)}" data-file="${esc(file)}">
-    <div class="thumb ${j.thumbnail ? '' : 'noimg'}" ${j.thumbnail ? `style="background-image:url(&quot;${esc(j.thumbnail)}&quot;)"` : ''}>${j.thumbnail ? '' : `<svg width="22" height="22"><use href="#${j.mode==='audio'?'i-music':'i-video'}"/></svg>`}</div>
+    <div class="thumb ${j.thumbnail ? '' : 'noimg'}" ${j.thumbnail ? `style="background-image:url(&quot;${esc(j.thumbnail)}&quot;)"` : ''}>${j.thumbnail ? '' : `<svg width="22" height="22"><use href="#${j.mode==='torrent'?'i-magnet':j.mode==='audio'?'i-music':'i-video'}"/></svg>`}</div>
     <div style="min-width:0"><div class="job-title" title="${esc(j.title)}">${esc(j.title)}</div>${sub}
       <div class="job-meta">${meta.join('<span>·</span>')}</div>
       ${hist ? '' : `<div class="bar ${indet && ACTIVE.has(j.status) ? 'indet' : ''}"><i style="width:${j.status==='done'?100:(j.percent||0)}%"></i></div>`}

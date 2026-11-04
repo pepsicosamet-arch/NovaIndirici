@@ -159,7 +159,7 @@ func fail(w http.ResponseWriter, code int, msg string) {
 
 func readBody(r *http.Request, v any) error {
 	defer r.Body.Close()
-	return json.NewDecoder(http.MaxBytesReader(nil, r.Body, 1<<20)).Decode(v)
+	return json.NewDecoder(http.MaxBytesReader(nil, r.Body, 16<<20)).Decode(v)
 }
 
 func randToken() string {
@@ -363,6 +363,17 @@ func handleInfo(w http.ResponseWriter, r *http.Request) {
 		fail(w, 400, "Bağlantı boş.")
 		return
 	}
+	if u := strings.TrimSpace(req.URL); isTorrentURL(u) {
+		name := magnetName(u)
+		if name == "" {
+			name = "Torrent"
+			if !strings.HasPrefix(strings.ToLower(u), "magnet:") {
+				name = strings.TrimSuffix(filepath.Base(u), ".torrent")
+			}
+		}
+		writeJSON(w, 200, MediaInfo{URL: u, Title: name, Site: "Torrent", IsTorrent: true})
+		return
+	}
 	ctx, cancel := context.WithTimeout(r.Context(), 90*time.Second)
 	defer cancel()
 	info, err := FetchInfo(ctx, strings.TrimSpace(req.URL), req.Playlist)
@@ -375,8 +386,25 @@ func handleInfo(w http.ResponseWriter, r *http.Request) {
 
 func handleDownload(w http.ResponseWriter, r *http.Request) {
 	var req JobRequest
-	if err := readBody(r, &req); err != nil || strings.TrimSpace(req.URL) == "" {
+	if err := readBody(r, &req); err != nil || (strings.TrimSpace(req.URL) == "" && req.Torrent == "") {
 		fail(w, 400, "Bağlantı boş.")
+		return
+	}
+	if req.Mode == "torrent" || req.Torrent != "" || isTorrentURL(req.URL) {
+		req.Mode = "torrent"
+		if req.Torrent != "" {
+			if _, err := decodeTorrentFile(req.Torrent); err != nil {
+				fail(w, 400, err.Error())
+				return
+			}
+		} else if !isTorrentURL(req.URL) {
+			fail(w, 400, "Geçerli bir magnet bağlantısı ya da .torrent dosyası gerekli.")
+			return
+		}
+		if req.Title == "" {
+			req.Title = magnetName(req.URL)
+		}
+		writeJSON(w, 200, jobs.Add(req).View())
 		return
 	}
 	if !toolStatus().Ready {

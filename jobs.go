@@ -32,6 +32,7 @@ type MediaInfo struct {
 	Heights    []int    `json:"heights"`
 	HasList    bool     `json:"hasList"`
 	Entries    []string `json:"entries"`
+	IsTorrent  bool     `json:"isTorrent"`
 }
 
 func baseArgs() []string {
@@ -180,28 +181,30 @@ type JobRequest struct {
 	Quality     string `json:"quality"`
 	AudioFormat string `json:"audioFormat"`
 	Playlist    bool   `json:"playlist"`
+	Torrent     string `json:"torrent,omitempty"` // .torrent dosyası (base64), yalnızca istekte
 }
 
 type Job struct {
 	mu sync.Mutex
 	JobRequest
-	ID        string   `json:"id"`
-	Status    string   `json:"status"` // queued starting downloading processing done error canceled
-	Stage     string   `json:"stage"`
-	Percent   float64  `json:"percent"`
-	Speed     float64  `json:"speed"`
-	ETA       int      `json:"eta"`
-	Done      int64    `json:"done"`
-	Total     int64    `json:"total"`
-	Item      int      `json:"item"`
-	Items     int      `json:"items"`
-	ItemTitle string   `json:"itemTitle"`
-	Files     []string `json:"files"`
-	Error     string   `json:"error"`
-	Created   int64    `json:"created"`
-	Finished  int64    `json:"finished"`
-	cancel    context.CancelFunc
-	canceled  bool
+	ID          string   `json:"id"`
+	Status      string   `json:"status"` // queued starting downloading processing done error canceled
+	Stage       string   `json:"stage"`
+	Percent     float64  `json:"percent"`
+	Speed       float64  `json:"speed"`
+	ETA         int      `json:"eta"`
+	Done        int64    `json:"done"`
+	Total       int64    `json:"total"`
+	Item        int      `json:"item"`
+	Items       int      `json:"items"`
+	ItemTitle   string   `json:"itemTitle"`
+	Files       []string `json:"files"`
+	Error       string   `json:"error"`
+	Created     int64    `json:"created"`
+	Finished    int64    `json:"finished"`
+	cancel      context.CancelFunc
+	canceled    bool
+	torrentData string
 }
 
 type JobView struct {
@@ -277,7 +280,9 @@ func (m *JobManager) History() []JobView {
 
 func (m *JobManager) Add(req JobRequest) *Job {
 	s := settings.Snapshot()
-	if req.Mode != "audio" {
+	torrentData := req.Torrent
+	req.Torrent = ""
+	if req.Mode != "audio" && req.Mode != "torrent" {
 		req.Mode = "video"
 	}
 	if req.Quality == "" {
@@ -290,6 +295,7 @@ func (m *JobManager) Add(req JobRequest) *Job {
 	m.seq++
 	j := &Job{JobRequest: req, ID: fmt.Sprintf("j%d-%d", time.Now().Unix(), m.seq), Status: "queued",
 		Stage: "Sırada", Created: time.Now().UnixMilli()}
+	j.torrentData = torrentData
 	if j.Title == "" {
 		j.Title = req.URL
 	}
@@ -465,6 +471,26 @@ func (m *JobManager) run(j *Job) {
 	req := j.JobRequest
 	j.mu.Unlock()
 	defer cancel()
+
+	if req.Mode == "torrent" {
+		j.mu.Lock()
+		j.Status, j.Stage = "downloading", "Torrent başlatılıyor"
+		j.mu.Unlock()
+		m.emit(j)
+		err := m.runTorrent(ctx, j, s.DownloadDir)
+		j.mu.Lock()
+		canceled := j.canceled
+		j.mu.Unlock()
+		switch {
+		case canceled:
+			m.finish(j, "canceled", "")
+		case err != nil:
+			m.finish(j, "error", err.Error())
+		default:
+			m.finish(j, "done", "")
+		}
+		return
+	}
 	tmpDir := filepath.Join(dataDir, "tmp", j.ID)
 	_ = os.MkdirAll(tmpDir, 0o755)
 	defer os.RemoveAll(tmpDir)
