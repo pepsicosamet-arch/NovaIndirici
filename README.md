@@ -1,7 +1,31 @@
 # NOVA İndirici
 
-Samet Şahin tarafından geliştirilen video / ses indirici.
+Bağlantıyı yapıştır, gerisini NOVA halletsin. YouTube, Instagram, TikTok, X ve 1000'den fazla siteden video ya da ses indir.
 
+<p align="center"><img src="web/logo.png" width="160" alt="NOVA İndirici"></p>
+
+## ⬇️ İndir
+
+**[NOVA-Indirici-Setup.exe](https://github.com/sametsahiniletisim-hue/nova-indirici/raw/main/dist/NOVA-Indirici-Setup.exe)** (Windows 10 / 11, 64 bit) indir ve çalıştır. Kurulum birkaç saniye sürer, yönetici izni gerekmez.
+
+Kurulum istemeyenler için taşınabilir sürüm: [NOVA-Indirici.exe](https://github.com/sametsahiniletisim-hue/nova-indirici/raw/main/dist/NOVA-Indirici.exe)
+
+> Dosya imzasız olduğu için Windows SmartScreen uyarı verebilir: **Ek bilgi → Yine de çalıştır**.
+> İlk açılışta indirme motoru (yt-dlp) ve FFmpeg otomatik indirilir (yalnızca bir kez).
+
+## Özellikler
+- 4K'ya kadar video (En iyi / 1440p / 1080p / 720p / 480p / 360p)
+- Sadece ses: MP3, M4A, OPUS, FLAC, WAV
+- Oynatma listesini tek seferde indirme
+- Canlı ilerleme, hız ve kalan süre; iptal ve tekrar dene
+- Aynı anda birden fazla indirme, geçmiş ve arama
+- Reklamsız, hesap istemez, veri toplamaz
+
+Geliştiren: **Samet Şahin** · [@xsametsahinx](https://www.instagram.com/xsametsahinx/)
+
+---
+
+## Geliştiriciler için
 ## Yapı
 - main.go   — yerel sunucu, ayarlar, API
 - jobs.go   — indirme kuyruğu, yt-dlp ilerleme takibi
