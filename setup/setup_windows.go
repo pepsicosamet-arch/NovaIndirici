@@ -157,3 +157,8 @@ func fallbackInstall(dir string) {
 		launch(exe)
 	}
 }
+
+func desktopShortcutExists() bool {
+	out, _ := ps(`Test-Path -LiteralPath (Join-Path ([Environment]::GetFolderPath('Desktop')) 'NOVA İndirici.lnk')`)
+	return strings.Contains(strings.ToLower(string(out)), "true")
+}

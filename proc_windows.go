@@ -98,3 +98,10 @@ func showError(title, msg string) {
 	m, _ := syscall.UTF16PtrFromString(msg)
 	u.Call(0, uintptr(unsafe.Pointer(m)), uintptr(unsafe.Pointer(t)), 0x10)
 }
+
+// runInstaller güncelleme kurulumunu bağımsız bir süreç olarak başlatır.
+func runInstaller(path string) error {
+	cmd := exec.Command(path, "/S", "/LAUNCH")
+	cmd.SysProcAttr = &syscall.SysProcAttr{CreationFlags: 0x00000008 | 0x00000200} // DETACHED_PROCESS | NEW_PROCESS_GROUP
+	return cmd.Start()
+}

@@ -19,10 +19,12 @@ import (
 	"time"
 )
 
+// AppVersion derleme sırasında -ldflags "-X main.AppVersion=..." ile ayarlanır.
+var AppVersion = "1.1.0"
+
 const (
-	AppName    = "NOVA İndirici"
-	AppVersion = "1.0.0"
-	PrefPort   = 47319
+	AppName  = "NOVA İndirici"
+	PrefPort = 47319
 )
 
 //go:embed web
@@ -232,6 +234,7 @@ func main() {
 	jobs.LoadHistory()
 	_ = os.RemoveAll(filepath.Join(dataDir, "tmp"))
 	go ytdlpVersion()
+	go updateLoop()
 
 	sub, _ := fs.Sub(webFS, "web")
 	mux := http.NewServeMux()
@@ -257,6 +260,8 @@ func main() {
 	mux.HandleFunc("/api/open", guard(handleOpen))
 	mux.HandleFunc("/api/open-url", guard(handleOpenURL))
 	mux.HandleFunc("/api/update-ytdlp", guard(handleUpdateYtdlp))
+	mux.HandleFunc("/api/update/check", guard(handleUpdateCheck))
+	mux.HandleFunc("/api/update/install", guard(handleUpdateInstall))
 
 	srv := &http.Server{Handler: mux, ReadHeaderTimeout: 10 * time.Second}
 	url := fmt.Sprintf("http://127.0.0.1:%d/#t=%s", port, token)
@@ -298,6 +303,7 @@ func fatal(msg string) {
 func handleState(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, 200, map[string]any{
 		"version":  AppVersion,
+		"update":   updateSnapshot(),
 		"tools":    toolStatus(),
 		"settings": settings.Snapshot(),
 		"jobs":     jobs.List(),

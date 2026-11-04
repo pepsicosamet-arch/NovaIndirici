@@ -41,3 +41,5 @@ func pickFolder(initial string) (string, error) {
 }
 
 func showError(title, msg string) { fmt.Fprintln(os.Stderr, title+": "+msg) }
+
+func runInstaller(path string) error { return errors.New("desteklenmiyor") }

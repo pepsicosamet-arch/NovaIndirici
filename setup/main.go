@@ -17,9 +17,10 @@ import (
 	"time"
 )
 
+var AppVersion = "1.1.0"
+
 const (
 	AppName    = "NOVA İndirici"
-	AppVersion = "1.0.0"
 	ExeName    = "NOVA-Indirici.exe"
 	FolderName = "NOVA Indirici"
 	RegKey     = `Software\Microsoft\Windows\CurrentVersion\Uninstall\NovaIndirici`
@@ -110,11 +111,13 @@ func guard(next http.HandlerFunc) http.HandlerFunc {
 }
 
 func main() {
-	silent, dirArg := false, ""
+	silent, launchAfter, dirArg := false, false, ""
 	for _, a := range os.Args[1:] {
 		switch {
 		case strings.EqualFold(a, "/S"):
 			silent = true
+		case strings.EqualFold(a, "/LAUNCH"):
+			launchAfter = true
 		case strings.HasPrefix(strings.ToUpper(a), "/D="):
 			dirArg = a[3:]
 		}
@@ -123,8 +126,16 @@ func main() {
 		dirArg = defaultDir()
 	}
 	if silent {
-		if _, err := Install(dirArg, true); err != nil {
+		desktop := true
+		if existingDir() != "" {
+			desktop = desktopShortcutExists() // güncellemede kullanıcının tercihini koru
+		}
+		exe, err := Install(dirArg, desktop)
+		if err != nil {
 			os.Exit(1)
+		}
+		if launchAfter {
+			launch(exe)
 		}
 		return
 	}

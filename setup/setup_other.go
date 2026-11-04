@@ -25,3 +25,4 @@ func openWindow(url string) bool                { return false }
 func launch(exe string)                         {}
 func fallbackInstall(dir string)                { fmt.Println("fallback", dir) }
 func closeWindow()                              {}
+func desktopShortcutExists() bool               { return true }
