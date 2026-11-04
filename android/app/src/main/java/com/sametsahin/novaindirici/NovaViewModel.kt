@@ -1,9 +1,13 @@
 package com.sametsahin.novaindirici
 
 import android.app.Application
+import android.content.ContentValues
 import android.media.MediaScannerConnection
 import android.net.Uri
+import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
+import android.webkit.MimeTypeMap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -16,7 +20,6 @@ import com.yausername.youtubedl_android.YoutubeDL
 import com.yausername.youtubedl_android.YoutubeDLRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withContext
 import org.json.JSONObject
@@ -71,8 +74,7 @@ class NovaViewModel(app: Application) : AndroidViewModel(app) {
     var engineBusy by mutableStateOf(false)
     var message by mutableStateOf<String?>(null)
 
-    val jobs = mutableStateListOf<Job>()
-    private val slots = Semaphore(2)
+    val jobs get() = NovaApp.jobs
     private var seq = 0
 
     val outDir: File
@@ -138,30 +140,36 @@ class NovaViewModel(app: Application) : AndroidViewModel(app) {
         info = null
         url = ""
         message = "İndirme başladı. Dosya İndirilenler/NOVA klasörüne kaydedilecek."
-        viewModelScope.launch { slots.withPermit { run(job) } }
+        start(job)
+    }
+
+    /** İşi uygulama düzeyinde başlatır: ekran kapansa da sürer. */
+    private fun start(job: Job) {
+        DownloadService.start(getApplication())
+        NovaApp.appScope.launch(Dispatchers.Main) { NovaApp.slots.withPermit { run(job) } }
     }
 
     private suspend fun run(job: Job) {
         if (job.status == "canceled") return
         job.status = "running"
         job.stage = "Hazırlanıyor"
+        val app = getApplication<Application>()
+        val work = File(app.getExternalFilesDir(null) ?: app.filesDir, "jobs/${job.id}")
         try {
-            val files = withContext(Dispatchers.IO) {
-                waitReady()
-                outDir.mkdirs()
-                val tmp = File(getApplication<Application>().cacheDir, "tmp/${job.id}").apply { mkdirs() }
+            val saved = withContext(Dispatchers.IO) {
+                waitReady { s -> NovaApp.appScope.launch(Dispatchers.Main) { job.stage = s } }
+                work.deleteRecursively()
+                val out = File(work, "out").apply { mkdirs() }
+                val tmp = File(work, "part").apply { mkdirs() }
                 val req = YoutubeDLRequest(job.url)
                 req.addOption("--no-playlist")
                 req.addOption("--newline")
-                req.addOption("--no-quiet")
-                req.addOption("--progress")
                 req.addOption("--no-mtime")
                 req.addOption("--windows-filenames")
                 req.addOption("--embed-metadata")
-                req.addOption("-P", outDir.absolutePath)
+                req.addOption("-P", out.absolutePath)
                 req.addOption("-P", "temp:" + tmp.absolutePath)
-                req.addOption("-o", "%(title).120B [%(id)s].%(ext)s")
-                req.addOption("--print", "after_move:NOVAFILE|%(filepath)s")
+                req.addOption("-o", "%(title).100B [%(id)s].%(ext)s")
                 if (job.mode == Mode.AUDIO) {
                     req.addOption("-f", "ba/b")
                     req.addOption("-x")
@@ -173,35 +181,37 @@ class NovaViewModel(app: Application) : AndroidViewModel(app) {
                     req.addOption("-S", if (h != null) "res:$h,ext:mp4:m4a" else "res,ext:mp4:m4a")
                     req.addOption("--merge-output-format", "mp4")
                 }
-                val resp = YoutubeDL.getInstance().execute(req, job.id) { p, eta, line ->
+                YoutubeDL.getInstance().execute(req, job.id) { p, eta, line ->
                     val stage = when {
                         line.startsWith("[Merger]") -> "Birleştiriliyor"
                         line.startsWith("[ExtractAudio]") -> "Ses dönüştürülüyor"
                         line.startsWith("[Metadata]") -> "Bilgiler yazılıyor"
-                        line.startsWith("[download]") && p >= 0 -> "İndiriliyor"
+                        line.startsWith("[download]") && p > 0f -> "İndiriliyor"
+                        line.startsWith("[download] Destination") -> "İndiriliyor"
+                        line.startsWith("[info]") || line.startsWith("[youtube]") || line.startsWith("[instagram]") ||
+                            line.startsWith("[TikTok]") || line.startsWith("[generic]") -> "Bilgiler alınıyor"
                         else -> null
                     }
-                    viewModelScope.launch(Dispatchers.Main) {
-                        if (p >= 0) job.progress = p / 100f
-                        job.eta = eta
+                    NovaApp.appScope.launch(Dispatchers.Main) {
+                        if (job.status == "canceled") return@launch
+                        if (p > 0f) job.progress = (p / 100f).coerceIn(0f, 1f)
+                        if (eta > 0) job.eta = eta
                         if (stage != null) {
                             job.stage = stage
-                            job.status = if (stage == "İndiriliyor") "running" else "processing"
+                            job.status = if (stage == "İndiriliyor" || stage == "Bilgiler alınıyor") "running" else "processing"
                         }
                     }
                 }
-                tmp.deleteRecursively()
-                resp.out.lines().filter { it.startsWith("NOVAFILE|") }.map { it.removePrefix("NOVAFILE|").trim() }
+                NovaApp.appScope.launch(Dispatchers.Main) { job.stage = "Kaydediliyor"; job.status = "processing" }
+                val files = out.walkTopDown().filter { it.isFile && it.length() > 0 && !it.name.endsWith(".part") && !it.name.endsWith(".ytdl") }.toList()
+                if (files.isEmpty()) throw IllegalStateException("İndirilen dosya bulunamadı. Başka bir kalite deneyin.")
+                files.map { export(it) }
             }
-            job.files = files
+            job.files = saved.map { it.first }
+            job.uri = saved.firstOrNull()?.second
             job.progress = 1f
             job.status = "done"
             job.stage = "Tamamlandı"
-            if (files.isNotEmpty()) {
-                MediaScannerConnection.scanFile(getApplication(), files.toTypedArray(), null) { _, uri ->
-                    viewModelScope.launch(Dispatchers.Main) { if (uri != null) job.uri = uri }
-                }
-            }
         } catch (e: YoutubeDL.CanceledException) {
             job.status = "canceled"
             job.stage = "İptal edildi"
@@ -210,7 +220,43 @@ class NovaViewModel(app: Application) : AndroidViewModel(app) {
             job.status = "error"
             job.stage = "Hata"
             job.error = friendly(e.message)
+        } finally {
+            withContext(Dispatchers.IO) { work.deleteRecursively() }
         }
+    }
+
+    /** Dosyayı İndirilenler/NOVA klasörüne kaydeder; (ad, uri) döndürür. */
+    private fun export(f: File): Pair<String, Uri?> {
+        val app = getApplication<Application>()
+        val ext = f.extension.lowercase()
+        val mime = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext) ?: when (ext) {
+            "mp4", "m4v" -> "video/mp4"; "webm" -> "video/webm"; "mkv" -> "video/x-matroska"
+            "mp3" -> "audio/mpeg"; "m4a" -> "audio/mp4"; "opus" -> "audio/ogg"; "flac" -> "audio/flac"
+            else -> "application/octet-stream"
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val cr = app.contentResolver
+            val values = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, f.name)
+                put(MediaStore.MediaColumns.MIME_TYPE, mime)
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/NOVA")
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
+            val uri = cr.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                ?: throw IllegalStateException("Dosya İndirilenler klasörüne kaydedilemedi.")
+            cr.openOutputStream(uri)?.use { o -> f.inputStream().use { it.copyTo(o) } }
+            values.clear()
+            values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+            cr.update(uri, values, null, null)
+            return f.name to uri
+        }
+        outDir.mkdirs()
+        var dst = File(outDir, f.name)
+        var n = 2
+        while (dst.exists()) { dst = File(outDir, "${f.nameWithoutExtension} ($n).${f.extension}"); n++ }
+        f.copyTo(dst)
+        MediaScannerConnection.scanFile(app, arrayOf(dst.absolutePath), arrayOf(mime), null)
+        return dst.name to Uri.fromFile(dst)
     }
 
     fun cancel(job: Job) {
@@ -231,7 +277,7 @@ class NovaViewModel(app: Application) : AndroidViewModel(app) {
         )
         jobs.remove(job)
         jobs.add(0, copy)
-        viewModelScope.launch { slots.withPermit { run(copy) } }
+        start(copy)
     }
 
     fun clearFinished() {
@@ -243,14 +289,8 @@ class NovaViewModel(app: Application) : AndroidViewModel(app) {
         engineBusy = true
         viewModelScope.launch {
             val res = withContext(Dispatchers.IO) {
-                try {
-                    waitReady()
-                    val st = YoutubeDL.getInstance().updateYoutubeDL(getApplication(), YoutubeDL.UpdateChannel.STABLE)
-                    NovaApp.engineVersion.value = YoutubeDL.getInstance().versionName(getApplication())
-                    if (st == YoutubeDL.UpdateStatus.ALREADY_UP_TO_DATE) "İndirme motoru zaten güncel." else "İndirme motoru güncellendi."
-                } catch (e: Throwable) {
-                    "Güncellenemedi: " + (e.message ?: "bilinmeyen hata")
-                }
+                waitReady {}
+                NovaApp.updateEngine() ?: "Güncellenemedi. İnternet bağlantını kontrol et."
             }
             message = res
             engineBusy = false
@@ -278,10 +318,14 @@ class NovaViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private suspend fun waitReady() {
-        while (!NovaApp.ready.value) {
+    /** Motor hazır olana (ve devam eden güncelleme bitene) kadar bekler. */
+    private suspend fun waitReady(onStage: (String) -> Unit = {}) {
+        var waited = 0
+        while (!NovaApp.ready.value || (NovaApp.updating.value && waited < 120_000)) {
             NovaApp.initError.value?.let { throw IllegalStateException("İndirme motoru başlatılamadı: $it") }
-            kotlinx.coroutines.delay(200)
+            onStage(if (!NovaApp.ready.value) "Motor hazırlanıyor" else "Motor güncelleniyor")
+            kotlinx.coroutines.delay(300)
+            waited += 300
         }
     }
 

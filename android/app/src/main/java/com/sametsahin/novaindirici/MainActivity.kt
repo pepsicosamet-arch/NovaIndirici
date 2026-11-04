@@ -125,8 +125,14 @@ private val NovaColors = darkColorScheme(
 class MainActivity : ComponentActivity() {
     private val vm: NovaViewModel by viewModels()
 
+    private val notifPerm = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Android 13+: indirme ilerlemesini bildirimde gösterebilmek için izin iste.
+        if (android.os.Build.VERSION.SDK_INT >= 33 &&
+            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED
+        ) notifPerm.launch(Manifest.permission.POST_NOTIFICATIONS)
         handleShare(intent)
         setContent {
             MaterialTheme(colorScheme = NovaColors) { NovaRoot(vm) }
@@ -240,6 +246,7 @@ private fun Brand() {
 @Composable
 fun DownloadScreen(vm: NovaViewModel, ready: Boolean, initError: String?, goJobs: () -> Unit) {
     val ctx = LocalContext.current
+    val engineStatus by NovaApp.status.collectAsState()
     val clip = LocalClipboardManager.current
     val permLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { ok ->
         if (ok) vm.download() else Toast.makeText(ctx, "Dosyaları kaydetmek için depolama izni gerekiyor.", Toast.LENGTH_LONG).show()
@@ -293,11 +300,11 @@ fun DownloadScreen(vm: NovaViewModel, ready: Boolean, initError: String?, goJobs
             colors = ButtonDefaults.buttonColors(containerColor = Red2),
         ) { Text(if (vm.loading) "İnceleniyor…" else "Getir", fontWeight = FontWeight.Bold, fontSize = 16.sp) }
 
-        if (!ready) {
+        if (!ready || engineStatus != null) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (initError == null) CircularProgressIndicator(Modifier.size(16.dp), color = Red, strokeWidth = 2.dp)
                 Spacer(Modifier.width(10.dp))
-                Text(initError?.let { "İndirme motoru başlatılamadı: $it" } ?: "İndirme motoru hazırlanıyor… (ilk açılışta biraz sürebilir)", color = Muted, fontSize = 13.sp)
+                Text(initError?.let { "İndirme motoru başlatılamadı: $it" } ?: (engineStatus ?: "İndirme motoru hazırlanıyor… (ilk açılışta biraz sürebilir)"), color = Muted, fontSize = 13.sp)
             }
         }
         if (vm.loading) {
