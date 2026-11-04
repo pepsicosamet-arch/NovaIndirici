@@ -247,7 +247,7 @@ select{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;
       <button data-v="settings"><svg><use href="#i-gear"/></svg><span>Ayarlar</span></button>
       <button data-v="about"><svg><use href="#i-user"/></svg><span>Hakkında</span></button>
     </nav>
-    <div class="side-foot">NOVA İndirici <span id="ver"></span><br><a data-go="about">Yapan: Samet Şahin</a><br><a id="siteLink">novaindirici.com</a></div>
+    <div class="side-foot">NOVA İndirici <span id="ver"></span><br><a data-go="about">Yapan: Samet Şahin</a><br><a id="siteLink">novaindirici.com.tr</a></div>
   </aside>
 
   <main>
@@ -365,7 +365,7 @@ select{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;
           <p class="role">NOVA'yı tasarlayan ve geliştiren kişi</p>
           <p>NOVA'yı sıfırdan tasarlayıp geliştirdim. Yeni özellikleri, geliştirme sürecini ve perde arkasını sosyal medya hesaplarımda paylaşıyorum.</p>
           <div class="socials" id="socials">
-            <button class="soc" style="grid-column:1/-1" data-url="https://novaindirici.com"><span class="si"><svg><use href="#i-link"/></svg></span><span><b>Web sitesi</b><small>novaindirici.com</small></span></button>
+            <button class="soc" style="grid-column:1/-1" data-url="https://novaindirici.com.tr"><span class="si"><svg><use href="#i-link"/></svg></span><span><b>Web sitesi</b><small>novaindirici.com.tr</small></span></button>
             <button class="soc" data-url="https://www.instagram.com/xsametsahinx/"><span class="si"><svg><use href="#i-cam"/></svg></span><span><b>Instagram</b><small>@xsametsahinx</small></span></button>
             <button class="soc" data-url="https://www.tiktok.com/@xsametsahinx"><span class="si"><svg><use href="#i-note"/></svg></span><span><b>TikTok</b><small>@xsametsahinx</small></span></button>
             <button class="soc" data-url="https://www.youtube.com/@xsametsahinx"><span class="si"><svg><use href="#i-tv"/></svg></span><span><b>YouTube</b><small>@xsametsahinx</small></span></button>
@@ -617,7 +617,7 @@ $('#sUpdate').onclick = async e => {
 // --- about ---
 const MAIL = 'samet.sahin.iletisim@gmail.com';
 const openExt = u => api('open-url', { url: u }).catch(() => window.open(u));
-$('#siteLink').onclick = () => openExt('https://novaindirici.com');
+$('#siteLink').onclick = () => openExt('https://novaindirici.com.tr');
 $('#socials').onclick = e => { const b = e.target.closest('.soc'); if (b) openExt(b.dataset.url); };
 $('#mailSend').onclick = () => openExt('mailto:' + MAIL + '?subject=' + encodeURIComponent('NOVA İndirici · Şikayet / Öneri (v' + ((S.update && S.update.current) || '') + ')'));
 $('#mailCopy').onclick = async () => { try { await navigator.clipboard.writeText(MAIL); toast('E-posta adresi kopyalandı.'); } catch { toast(MAIL); } };
