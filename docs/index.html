@@ -155,6 +155,21 @@ section{position:relative;z-index:1}
 .upd .ver{font:500 13px var(--mono);color:var(--muted);text-align:right}
 .upd .ver b{display:block;font:800 22px var(--display);color:var(--fg)}
 
+.plats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.plat{position:relative;display:flex;flex-direction:column;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:28px 26px;min-width:0}
+.plat.me{border-color:#6a2a30;box-shadow:0 0 0 1px rgba(255,59,59,.25),0 30px 60px -30px rgba(255,40,40,.45)}
+.plat .pi{width:48px;height:48px;border-radius:14px;background:var(--redsoft);display:grid;place-items:center}
+.plat .pi svg{width:24px;height:24px;color:#ff6b6b}
+.plat h3{font-size:21px;font-weight:700}
+.plat .req{font:500 13px var(--mono);color:var(--muted)}
+.plat ol{margin:0;padding-left:18px;color:var(--muted);font-size:14.5px;display:flex;flex-direction:column;gap:4px}
+.plat .btn{margin-top:auto}
+.plat .alt{font-size:13px;color:var(--dim);text-align:center}
+.plat .alt a{color:var(--muted)}
+.tag-me{position:absolute;top:20px;right:20px;font:600 11px var(--body);letter-spacing:.12em;text-transform:uppercase;color:#fff;background:var(--red2);border-radius:6px;padding:3px 8px}
+.ios{margin-top:16px;display:flex;gap:16px;align-items:center;padding:20px 24px;border-radius:18px;border:1px dashed var(--line2);color:var(--muted);font-size:14.5px}
+.ios svg{width:22px;height:22px;flex:none;color:var(--dim)}
+@media (max-width:960px){.plats{grid-template-columns:1fr}}
 /* faq */
 .faq{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 details{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:0 22px;min-width:0}
@@ -243,6 +258,9 @@ footer a:hover{color:var(--fg)}
     <symbol id="i-tv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="4"/><path d="m10 9 5 3-5 3z" fill="currentColor"/></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h16v11H9l-5 4z"/></symbol>
     <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+    <symbol id="i-win" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></symbol>
+    <symbol id="i-lap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="4" y="5" width="16" height="11" rx="2"/><path d="M2 19h20"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></symbol>
     <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h8"/></symbol>
   </defs>
 </svg>
@@ -253,9 +271,9 @@ footer a:hover{color:var(--fg)}
   <div class="wrap nav">
     <a class="brand" href="#top" aria-label="NOVA İndirici"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ib3JiIiBjeD0iNDIlIiBjeT0iMzglIiByPSI3MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNiMzEyMWYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNTUiIHN0b3AtY29sb3I9IiM2ZTBhMTYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMmEwNDBhIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJuZmlsbCIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZjhhNWMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNDUiIHN0b3AtY29sb3I9IiNmZjNiM2IiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjYzgxMDFlIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJyaW0iIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmY2YTRhIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2I4MGYxYyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9Imdsb3ciIHg9Ii00MCUiIHk9Ii00MCUiIHdpZHRoPSIxODAlIiBoZWlnaHQ9IjE4MCUiPgogICAgICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxNiIvPgogICAgPC9maWx0ZXI+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0IiB4PSItMjAlIiB5PSItMjAlIiB3aWR0aD0iMTQwJSIgaGVpZ2h0PSIxNDAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIvPgogICAgPC9maWx0ZXI+CiAgICA8Y2xpcFBhdGggaWQ9Im9yYkNsaXAiPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI2MiIgcj0iMTY4Ii8+PC9jbGlwUGF0aD4KICAgIDxzeW1ib2wgaWQ9InNwYXJrIiB2aWV3Qm94PSItMTAgLTEwIDIwIDIwIj48cGF0aCBkPSJNMC0xMCAyLTIgMTAgMCAyIDIgMCAxMC0yIDItMTAgMC0yLTJ6Ii8+PC9zeW1ib2w+CiAgPC9kZWZzPgoKICA8IS0tIGTEscWfIHBhcsSxbHTEsSAtLT4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNjIiIHI9IjE3OCIgZmlsbD0iI2ZmMmEyYSIgb3BhY2l0eT0iLjQ1IiBmaWx0ZXI9InVybCgjZ2xvdykiLz4KICA8IS0tIGvDvHJlIC0tPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI2MiIgcj0iMTY4IiBmaWxsPSJ1cmwoI29yYikiLz4KICA8ZyBjbGlwLXBhdGg9InVybCgjb3JiQ2xpcCkiIGZpbGw9IiNmZmIxOTkiPgogICAgPGNpcmNsZSBjeD0iMTYwIiBjeT0iMTkwIiByPSIyLjIiIG9wYWNpdHk9Ii44Ii8+PGNpcmNsZSBjeD0iMjEwIiBjeT0iMTQwIiByPSIxLjYiIG9wYWNpdHk9Ii43Ii8+CiAgICA8Y2lyY2xlIGN4PSIzODAiIGN5PSIyNTAiIHI9IjIiIG9wYWNpdHk9Ii43Ii8+PGNpcmNsZSBjeD0iMzAwIiBjeT0iNDAwIiByPSIxLjgiIG9wYWNpdHk9Ii42Ii8+CiAgICA8Y2lyY2xlIGN4PSIxNDAiIGN5PSIzMDAiIHI9IjEuNSIgb3BhY2l0eT0iLjYiLz48Y2lyY2xlIGN4PSIzOTUiIGN5PSIzMzAiIHI9IjIuNCIgb3BhY2l0eT0iLjciLz4KICAgIDxjaXJjbGUgY3g9IjI1MCIgY3k9IjEyMCIgcj0iMS40IiBvcGFjaXR5PSIuNiIvPjxjaXJjbGUgY3g9IjM2MCIgY3k9IjE2MCIgcj0iMS42IiBvcGFjaXR5PSIuNSIvPgogICAgPGVsbGlwc2UgY3g9IjIwMCIgY3k9IjE3NSIgcng9IjEyMCIgcnk9IjcwIiBmaWxsPSIjZmY1YTRhIiBvcGFjaXR5PSIuMTIiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogIDwvZz4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNjIiIHI9IjE2OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI3JpbSkiIHN0cm9rZS13aWR0aD0iNyIvPgoKICA8IS0tIHnDtnLDvG5nZSAtLT4KICA8cGF0aCBkPSJNODQgMzEyIEMgNjAgMjUwLCAyNTAgMTcwLCA0MzAgMjAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjdhNDUiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuOSIvPgogIDxwYXRoIGQ9Ik00NDAgMjM2IEMgNDcwIDMwMCwgMzIwIDM4MCwgMTUwIDM4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmY3YTQ1IiBzdHJva2Utd2lkdGg9IjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjU1Ii8+CgogIDwhLS0gTiArIG9rOiBrb3l1IGtvbnR1ciAtLT4KICA8ZyBzdHJva2U9IiMxZDA1MDkiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsbD0iIzFkMDUwOSI+CiAgICA8cGF0aCBkPSJNMTgwIDMxOCBWMTYwIEwzMzggMzYwIFY4MiIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSI4NiIvPgogICAgPHBhdGggZD0iTTExMiAzMDAgSDI0OCBMMTgwIDQxMiBaIiBzdHJva2Utd2lkdGg9IjMwIi8+CiAgPC9nPgogIDwhLS0gTiArIG9rOiBkb2xndSAtLT4KICA8ZyBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPHBhdGggZD0iTTE4MCAzMTggVjE2MCBMMzM4IDM2MCBWODIiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNuZmlsbCkiIHN0cm9rZS13aWR0aD0iNTYiLz4KICAgIDxwYXRoIGQ9Ik0xMjAgMzA2IEgyNDAgTDE4MCA0MDIgWiIgZmlsbD0idXJsKCNuZmlsbCkiIHN0cm9rZT0idXJsKCNuZmlsbCkiIHN0cm9rZS13aWR0aD0iMTQiLz4KICAgIDwhLS0gcGFybGFtYSAtLT4KICAgIDxwYXRoIGQ9Ik0xNjggMzAwIFYxNzIiIHN0cm9rZT0iI2ZmZDJjMiIgc3Ryb2tlLXdpZHRoPSI5IiBvcGFjaXR5PSIuNTUiIGZpbGw9Im5vbmUiLz4KICAgIDxwYXRoIGQ9Ik0zNTAgMzMwIFY5NiIgc3Ryb2tlPSIjZmZkMmMyIiBzdHJva2Utd2lkdGg9IjciIG9wYWNpdHk9Ii40IiBmaWxsPSJub25lIi8+CiAgICA8cGF0aCBkPSJNMTk2IDE3MCBMMzMwIDM0MCIgc3Ryb2tlPSIjZmZlM2Q4IiBzdHJva2Utd2lkdGg9IjYiIG9wYWNpdHk9Ii4zNSIgZmlsbD0ibm9uZSIvPgogIDwvZz4KCiAgPCEtLSB5xLFsZMSxemxhciAtLT4KICA8dXNlIGhyZWY9IiNzcGFyayIgeD0iNTgiIHk9Ijk2IiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZjRhNGEiLz4KICA8dXNlIGhyZWY9IiNzcGFyayIgeD0iMjU2IiB5PSIxMDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgZmlsbD0iI2ZmZmZmZiIvPgogIDx1c2UgaHJlZj0iI3NwYXJrIiB4PSI0MDAiIHk9IjgwIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIGZpbGw9IiNmZjhhNGEiLz4KICA8dXNlIGhyZWY9IiNzcGFyayIgeD0iNDA0IiB5PSIzNzIiIHdpZHRoPSIzOCIgaGVpZ2h0PSIzOCIgZmlsbD0iI2ZmOGE0YSIvPgogIDx1c2UgaHJlZj0iI3NwYXJrIiB4PSIyNDYiIHk9IjQwNCIgd2lkdGg9IjI2IiBoZWlnaHQ9IjI2IiBmaWxsPSIjZmY1YTVhIi8+CiAgPHVzZSBocmVmPSIjc3BhcmsiIHg9Ijk2IiB5PSI0MjAiIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgZmlsbD0iI2ZmNGE0YSIvPgogIDxjaXJjbGUgY3g9IjQ0MCIgY3k9IjMwMCIgcj0iNCIgZmlsbD0iI2ZmNmE0YSIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMjUwIiByPSI0IiBmaWxsPSIjZmY0YTRhIi8+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iNjAiIHI9IjMiIGZpbGw9IiNmZjZhNGEiLz48Y2lyY2xlIGN4PSI0NTUiIGN5PSIxNTAiIHI9IjMiIGZpbGw9IiNmZjhhNGEiLz4KPC9zdmc+Cg==" alt=""><span><b>N<span>O</span>VA</b><small>İNDİRİCİ</small></span></a>
     <nav class="links" aria-label="Bölümler">
-      <a href="#nasil">Nasıl çalışır</a><a href="#ozellikler">Özellikler</a><a href="#sss">SSS</a><a href="#gelistirici">Geliştirici</a>
+      <a href="#nasil">Nasıl çalışır</a><a href="#ozellikler">Özellikler</a><a href="#indir">İndir</a><a href="#sss">SSS</a><a href="#gelistirici">Geliştirici</a>
     </nav>
-    <a class="btn sm primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"><svg><use href="#i-dl"/></svg>İndir</a>
+    <a class="btn sm primary" href="#indir"><svg><use href="#i-dl"/></svg>İndir</a>
   </div>
 </header>
 
@@ -263,17 +281,17 @@ footer a:hover{color:var(--fg)}
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <span class="eyebrow">Windows için ücretsiz · <span class="appver">v1.4.1</span></span>
+      <span class="eyebrow">Windows için ücretsiz · <span class="appver">v1.5.0</span></span>
       <h1>Bağlantıyı yapıştır, <em>gerisini NOVA halletsin.</em></h1>
       <p class="lead">YouTube, Instagram, TikTok ve 1000'den fazla siteden videoyu ya da sesi tek tıkla, istediğin kalitede bilgisayarına indir. Reklam yok, hesap yok, sahte "İNDİR" düğmesi yok.</p>
       <div class="cta">
-        <a class="btn big primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"><svg><use href="#i-dl"/></svg>Windows için indir</a>
+        <a class="btn big primary" id="dlMain" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"><svg><use href="#i-dl"/></svg><span id="dlMainTx">Windows için indir</span></a>
         <a class="btn big" href="https://github.com/pepsicosamet-arch/NovaIndirici" target="_blank" rel="noopener"><svg><use href="#i-git"/></svg>GitHub'da incele</a>
       </div>
       <div class="meta">
-        <span><svg><use href="#i-check"/></svg>Windows 10 / 11 · 64 bit</span>
-        <span><svg><use href="#i-check"/></svg>13,5 MB kurulum</span>
-        <span><svg><use href="#i-check"/></svg>Yönetici izni gerekmez</span>
+        <span><svg><use href="#i-check"/></svg>Windows · Mac · Android</span>
+        <span><svg><use href="#i-check"/></svg>Ücretsiz, reklamsız</span>
+        <span><a href="#indir" style="color:var(--ember);text-decoration:none">Tüm platformlar →</a></span>
       </div>
     </div>
 
@@ -338,8 +356,38 @@ footer a:hover{color:var(--fg)}
     <div class="upd">
       <div class="ic"><svg><use href="#i-retry"/></svg></div>
       <div><h3>Kendini güncel tutar</h3><p>Yeni bir sürüm çıktığında NOVA seni haberdar eder. Tek tıkla güncellenir; ayarların ve geçmişin korunur.</p></div>
-      <div class="ver">son sürüm<b class="appver">v1.4.1</b></div>
+      <div class="ver">son sürüm<b class="appver">v1.5.0</b></div>
     </div>
+  </div>
+</section>
+
+<section class="sec" id="indir">
+  <div class="wrap">
+    <div class="sec-head"><span class="eyebrow">İndir</span><h2>Cihazını seç, hemen başla.</h2><p>Hepsi ücretsiz ve aynı anda güncellenir. Son sürüm: <b class="appver" style="color:var(--fg)">v1.5.0</b></p></div>
+    <div class="plats">
+      <div class="plat" data-os="win">
+        <div class="pi"><svg><use href="#i-win"/></svg></div>
+        <h3>Windows</h3><span class="req">Windows 10 / 11 · 64 bit</span>
+        <ol><li>Kurulum dosyasını indir ve çalıştır.</li><li>"Tanınmayan uygulama" uyarısında <b>Ek bilgi → Yine de çalıştır</b>.</li><li>Kur'a bas; yönetici izni gerekmez.</li></ol>
+        <a class="btn primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"><svg><use href="#i-dl"/></svg>Windows için indir</a>
+        <span class="alt"><a href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici.exe">Kurulumsuz (taşınabilir) sürüm</a></span>
+      </div>
+      <div class="plat" data-os="mac">
+        <div class="pi"><svg><use href="#i-lap"/></svg></div>
+        <h3>Mac</h3><span class="req">macOS 11+ · Apple Silicon ve Intel</span>
+        <ol><li>DMG dosyasını indir ve aç.</li><li>NOVA'yı <b>Uygulamalar</b> klasörüne sürükle.</li><li>İlk açılışta sağ tık → <b>Aç</b>. Uyarı çıkarsa Sistem Ayarları → Gizlilik ve Güvenlik → <b>Yine de Aç</b>.</li></ol>
+        <a class="btn primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Mac.dmg"><svg><use href="#i-dl"/></svg>Mac için indir</a>
+        <span class="alt">Tek dosya, iki işlemci türü için</span>
+      </div>
+      <div class="plat" data-os="android">
+        <div class="pi"><svg><use href="#i-phone"/></svg></div>
+        <h3>Android</h3><span class="req">Android 7.0 ve üzeri</span>
+        <ol><li>APK dosyasını telefonuna indir.</li><li>Dosyaya dokun; istenirse <b>bu kaynaktan yüklemeye izin ver</b>.</li><li>YouTube'da Paylaş → <b>NOVA İndirici</b> ile de indirebilirsin.</li></ol>
+        <a class="btn primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Android.apk"><svg><use href="#i-dl"/></svg>Android için indir</a>
+        <span class="alt"><a href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Android-32bit.apk">Eski telefonlar için (32 bit)</a></span>
+      </div>
+    </div>
+    <div class="ios"><svg><use href="#i-phone"/></svg><span><b style="color:var(--fg)">iPhone / iPad:</b> Apple, video indirme uygulamalarına App Store'da izin vermediği ve iOS dışarıdan uygulama kurmayı kısıtladığı için iOS sürümü yok.</span></div>
   </div>
 </section>
 
@@ -349,7 +397,9 @@ footer a:hover{color:var(--fg)}
     <div class="faq">
       <details open><summary>NOVA ücretsiz mi?</summary><p>Evet. NOVA tamamen ücretsizdir; reklam, abonelik ya da gizli ücret yoktur.</p></details>
       <details><summary>Windows "tanınmayan uygulama" uyarısı veriyor, güvenli mi?</summary><p>NOVA henüz dijital olarak imzalanmadığı için SmartScreen bu uyarıyı gösterebilir. <b>Ek bilgi → Yine de çalıştır</b> ile devam edebilirsin. Kaynak kodu GitHub'da herkese açıktır.</p></details>
-      <details><summary>Hangi sistemlerde çalışır?</summary><p>Windows 10 ve Windows 11 (64 bit). Kurulum yönetici izni istemez ve yalnızca senin kullanıcı hesabına kurulur.</p></details>
+      <details><summary>Hangi sistemlerde çalışır?</summary><p>Windows 10 / 11 (64 bit), macOS 11 ve üzeri (Apple Silicon ve Intel) ve Android 7.0 ve üzeri. iPhone ve iPad için Apple'ın kuralları nedeniyle sürüm yok.</p></details>
+      <details><summary>Mac "geliştirici doğrulanamadı" diyor?</summary><p>NOVA henüz Apple tarafından imzalanmadığı için bu uyarı çıkar. Uygulamaya sağ tıklayıp <b>Aç</b> de. Yine açılmazsa Sistem Ayarları → Gizlilik ve Güvenlik bölümünde <b>Yine de Aç</b>'a bas.</p></details>
+      <details><summary>Android APK kurmak güvenli mi?</summary><p>NOVA Google Play'de olmadığı için doğrudan APK olarak dağıtılır. Telefon ilk kurulumda bu kaynağa izin vermeni ister. Dosyayı yalnızca bu siteden ya da resmi GitHub sayfasından indir.</p></details>
       <details><summary>İlk açılışta neden bir şey indiriyor?</summary><p>İlk açılışta indirme motoru (yt-dlp) ve dönüştürme aracı (FFmpeg) bir kez indirilir, yaklaşık 130 MB. Sonrasında tekrar gerekmez.</p></details>
       <details><summary>Bir site indirmiyor, ne yapmalıyım?</summary><p>Siteler sık değişir. Ayarlar'dan <b>İndirme motoru → Güncelle</b> düğmesine bas. Sorun sürerse bağlantıyla birlikte bana e-posta gönder.</p></details>
       <details><summary>Her videoyu indirebilir miyim?</summary><p>Yalnızca indirme hakkına sahip olduğun içerikleri indir. Telif hakkıyla korunan içerikleri izinsiz paylaşma.</p></details>
@@ -387,10 +437,9 @@ footer a:hover{color:var(--fg)}
   <div class="wrap">
     <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj4KICA8ZGVmcz4KICAgIDxyYWRpYWxHcmFkaWVudCBpZD0ib3JiIiBjeD0iNDIlIiBjeT0iMzglIiByPSI3MCUiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNiMzEyMWYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNTUiIHN0b3AtY29sb3I9IiM2ZTBhMTYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjMmEwNDBhIi8+CiAgICA8L3JhZGlhbEdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJuZmlsbCIgeDE9IjAiIHkxPSIwIiB4Mj0iMSIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiNmZjhhNWMiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIuNDUiIHN0b3AtY29sb3I9IiNmZjNiM2IiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjYzgxMDFlIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJyaW0iIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjZmY2YTRhIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iI2I4MGYxYyIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxmaWx0ZXIgaWQ9Imdsb3ciIHg9Ii00MCUiIHk9Ii00MCUiIHdpZHRoPSIxODAlIiBoZWlnaHQ9IjE4MCUiPgogICAgICA8ZmVHYXVzc2lhbkJsdXIgc3RkRGV2aWF0aW9uPSIxNiIvPgogICAgPC9maWx0ZXI+CiAgICA8ZmlsdGVyIGlkPSJzb2Z0IiB4PSItMjAlIiB5PSItMjAlIiB3aWR0aD0iMTQwJSIgaGVpZ2h0PSIxNDAlIj4KICAgICAgPGZlR2F1c3NpYW5CbHVyIHN0ZERldmlhdGlvbj0iMyIvPgogICAgPC9maWx0ZXI+CiAgICA8Y2xpcFBhdGggaWQ9Im9yYkNsaXAiPjxjaXJjbGUgY3g9IjI1NiIgY3k9IjI2MiIgcj0iMTY4Ii8+PC9jbGlwUGF0aD4KICAgIDxzeW1ib2wgaWQ9InNwYXJrIiB2aWV3Qm94PSItMTAgLTEwIDIwIDIwIj48cGF0aCBkPSJNMC0xMCAyLTIgMTAgMCAyIDIgMCAxMC0yIDItMTAgMC0yLTJ6Ii8+PC9zeW1ib2w+CiAgPC9kZWZzPgoKICA8IS0tIGTEscWfIHBhcsSxbHTEsSAtLT4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNjIiIHI9IjE3OCIgZmlsbD0iI2ZmMmEyYSIgb3BhY2l0eT0iLjQ1IiBmaWx0ZXI9InVybCgjZ2xvdykiLz4KICA8IS0tIGvDvHJlIC0tPgogIDxjaXJjbGUgY3g9IjI1NiIgY3k9IjI2MiIgcj0iMTY4IiBmaWxsPSJ1cmwoI29yYikiLz4KICA8ZyBjbGlwLXBhdGg9InVybCgjb3JiQ2xpcCkiIGZpbGw9IiNmZmIxOTkiPgogICAgPGNpcmNsZSBjeD0iMTYwIiBjeT0iMTkwIiByPSIyLjIiIG9wYWNpdHk9Ii44Ii8+PGNpcmNsZSBjeD0iMjEwIiBjeT0iMTQwIiByPSIxLjYiIG9wYWNpdHk9Ii43Ii8+CiAgICA8Y2lyY2xlIGN4PSIzODAiIGN5PSIyNTAiIHI9IjIiIG9wYWNpdHk9Ii43Ii8+PGNpcmNsZSBjeD0iMzAwIiBjeT0iNDAwIiByPSIxLjgiIG9wYWNpdHk9Ii42Ii8+CiAgICA8Y2lyY2xlIGN4PSIxNDAiIGN5PSIzMDAiIHI9IjEuNSIgb3BhY2l0eT0iLjYiLz48Y2lyY2xlIGN4PSIzOTUiIGN5PSIzMzAiIHI9IjIuNCIgb3BhY2l0eT0iLjciLz4KICAgIDxjaXJjbGUgY3g9IjI1MCIgY3k9IjEyMCIgcj0iMS40IiBvcGFjaXR5PSIuNiIvPjxjaXJjbGUgY3g9IjM2MCIgY3k9IjE2MCIgcj0iMS42IiBvcGFjaXR5PSIuNSIvPgogICAgPGVsbGlwc2UgY3g9IjIwMCIgY3k9IjE3NSIgcng9IjEyMCIgcnk9IjcwIiBmaWxsPSIjZmY1YTRhIiBvcGFjaXR5PSIuMTIiIGZpbHRlcj0idXJsKCNzb2Z0KSIvPgogIDwvZz4KICA8Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNjIiIHI9IjE2OCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ1cmwoI3JpbSkiIHN0cm9rZS13aWR0aD0iNyIvPgoKICA8IS0tIHnDtnLDvG5nZSAtLT4KICA8cGF0aCBkPSJNODQgMzEyIEMgNjAgMjUwLCAyNTAgMTcwLCA0MzAgMjAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNmZjdhNDUiIHN0cm9rZS13aWR0aD0iNyIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiBvcGFjaXR5PSIuOSIvPgogIDxwYXRoIGQ9Ik00NDAgMjM2IEMgNDcwIDMwMCwgMzIwIDM4MCwgMTUwIDM4MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjZmY3YTQ1IiBzdHJva2Utd2lkdGg9IjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgb3BhY2l0eT0iLjU1Ii8+CgogIDwhLS0gTiArIG9rOiBrb3l1IGtvbnR1ciAtLT4KICA8ZyBzdHJva2U9IiMxZDA1MDkiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZmlsbD0iIzFkMDUwOSI+CiAgICA8cGF0aCBkPSJNMTgwIDMxOCBWMTYwIEwzMzggMzYwIFY4MiIgZmlsbD0ibm9uZSIgc3Ryb2tlLXdpZHRoPSI4NiIvPgogICAgPHBhdGggZD0iTTExMiAzMDAgSDI0OCBMMTgwIDQxMiBaIiBzdHJva2Utd2lkdGg9IjMwIi8+CiAgPC9nPgogIDwhLS0gTiArIG9rOiBkb2xndSAtLT4KICA8ZyBzdHJva2UtbGluZWpvaW49InJvdW5kIiBzdHJva2UtbGluZWNhcD0icm91bmQiPgogICAgPHBhdGggZD0iTTE4MCAzMTggVjE2MCBMMzM4IDM2MCBWODIiIGZpbGw9Im5vbmUiIHN0cm9rZT0idXJsKCNuZmlsbCkiIHN0cm9rZS13aWR0aD0iNTYiLz4KICAgIDxwYXRoIGQ9Ik0xMjAgMzA2IEgyNDAgTDE4MCA0MDIgWiIgZmlsbD0idXJsKCNuZmlsbCkiIHN0cm9rZT0idXJsKCNuZmlsbCkiIHN0cm9rZS13aWR0aD0iMTQiLz4KICAgIDwhLS0gcGFybGFtYSAtLT4KICAgIDxwYXRoIGQ9Ik0xNjggMzAwIFYxNzIiIHN0cm9rZT0iI2ZmZDJjMiIgc3Ryb2tlLXdpZHRoPSI5IiBvcGFjaXR5PSIuNTUiIGZpbGw9Im5vbmUiLz4KICAgIDxwYXRoIGQ9Ik0zNTAgMzMwIFY5NiIgc3Ryb2tlPSIjZmZkMmMyIiBzdHJva2Utd2lkdGg9IjciIG9wYWNpdHk9Ii40IiBmaWxsPSJub25lIi8+CiAgICA8cGF0aCBkPSJNMTk2IDE3MCBMMzMwIDM0MCIgc3Ryb2tlPSIjZmZlM2Q4IiBzdHJva2Utd2lkdGg9IjYiIG9wYWNpdHk9Ii4zNSIgZmlsbD0ibm9uZSIvPgogIDwvZz4KCiAgPCEtLSB5xLFsZMSxemxhciAtLT4KICA8dXNlIGhyZWY9IiNzcGFyayIgeD0iNTgiIHk9Ijk2IiB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIGZpbGw9IiNmZjRhNGEiLz4KICA8dXNlIGhyZWY9IiNzcGFyayIgeD0iMjU2IiB5PSIxMDAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgZmlsbD0iI2ZmZmZmZiIvPgogIDx1c2UgaHJlZj0iI3NwYXJrIiB4PSI0MDAiIHk9IjgwIiB3aWR0aD0iMjgiIGhlaWdodD0iMjgiIGZpbGw9IiNmZjhhNGEiLz4KICA8dXNlIGhyZWY9IiNzcGFyayIgeD0iNDA0IiB5PSIzNzIiIHdpZHRoPSIzOCIgaGVpZ2h0PSIzOCIgZmlsbD0iI2ZmOGE0YSIvPgogIDx1c2UgaHJlZj0iI3NwYXJrIiB4PSIyNDYiIHk9IjQwNCIgd2lkdGg9IjI2IiBoZWlnaHQ9IjI2IiBmaWxsPSIjZmY1YTVhIi8+CiAgPHVzZSBocmVmPSIjc3BhcmsiIHg9Ijk2IiB5PSI0MjAiIHdpZHRoPSIyMiIgaGVpZ2h0PSIyMiIgZmlsbD0iI2ZmNGE0YSIvPgogIDxjaXJjbGUgY3g9IjQ0MCIgY3k9IjMwMCIgcj0iNCIgZmlsbD0iI2ZmNmE0YSIvPjxjaXJjbGUgY3g9IjcwIiBjeT0iMjUwIiByPSI0IiBmaWxsPSIjZmY0YTRhIi8+CiAgPGNpcmNsZSBjeD0iMzAwIiBjeT0iNjAiIHI9IjMiIGZpbGw9IiNmZjZhNGEiLz48Y2lyY2xlIGN4PSI0NTUiIGN5PSIxNTAiIHI9IjMiIGZpbGw9IiNmZjhhNGEiLz4KPC9zdmc+Cg==" alt="">
     <h2>Video indirmek hiç bu kadar kolay olmamıştı.</h2>
-    <p>Ücretsiz indir, saniyeler içinde kur, hemen kullanmaya başla.</p>
+    <p>Windows, Mac ve Android için ücretsiz. Saniyeler içinde kur, hemen kullanmaya başla.</p>
     <div class="cta">
-      <a class="btn big primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"><svg><use href="#i-dl"/></svg>NOVA İndirici'yi indir</a>
-      <a class="btn big" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici.exe"><svg><use href="#i-dl"/></svg>Taşınabilir sürüm</a>
+      <a class="btn big primary" href="#indir"><svg><use href="#i-dl"/></svg>NOVA İndirici'yi indir</a>
     </div>
   </div>
 </section>
@@ -419,6 +468,14 @@ footer a:hover{color:var(--fg)}
     try { navigator.clipboard.writeText(mail).then(() => toast('E-posta adresi kopyalandı'), () => { sel(); toast('Adres seçildi, Ctrl+C ile kopyala'); }); }
     catch { sel(); toast('Adres seçildi, Ctrl+C ile kopyala'); }
   });
+
+  // Ziyaretçinin cihazına uygun indirme düğmesi
+  const ua = navigator.userAgent || '';
+  const os = /Android/i.test(ua) ? 'android' : /iPhone|iPad|iPod/i.test(ua) ? 'ios' : /Macintosh|Mac OS X/i.test(ua) ? 'mac' : 'win';
+  const main = { win: ['https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe', 'Windows için indir'], mac: ['https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Mac.dmg', 'Mac için indir'], android: ['https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Android.apk', 'Android için indir'], ios: ['#indir', 'Diğer cihazlar için indir'] }[os];
+  $('#dlMain').href = main[0]; $('#dlMainTx').textContent = main[1];
+  const card = document.querySelector('.plat[data-os="' + os + '"]');
+  if (card) { card.classList.add('me'); card.insertAdjacentHTML('afterbegin', '<span class="tag-me">Senin cihazın</span>'); }
 
   // Son sürümü GitHub'dan oku (sayfa yeniden yüklenmeden güncel kalır)
   fetch('https://raw.githubusercontent.com/pepsicosamet-arch/NovaIndirici/main/dist/latest.json', { cache: 'no-store' })
