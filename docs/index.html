@@ -170,6 +170,9 @@ section{position:relative;z-index:1}
 .ios{margin-top:16px;display:flex;gap:16px;align-items:center;padding:20px 24px;border-radius:18px;border:1px dashed var(--line2);color:var(--muted);font-size:14.5px}
 .ios svg{width:22px;height:22px;flex:none;color:var(--dim)}
 @media (max-width:960px){.plats{grid-template-columns:1fr}}
+.inapp{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#2a0e12;border-top:1px solid #6a2a30;padding:14px max(16px,env(safe-area-inset-right,0px)) calc(14px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));display:flex;gap:12px;align-items:center;font-size:14.5px;color:#ffd9d6}
+.inapp b{color:#fff}
+.inapp button{margin-left:auto;flex:none}
 /* faq */
 .faq{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 details{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:0 22px;min-width:0}
@@ -285,7 +288,7 @@ footer a:hover{color:var(--fg)}
       <h1>Bağlantıyı yapıştır, <em>gerisini NOVA halletsin.</em></h1>
       <p class="lead">YouTube, Instagram, TikTok ve 1000'den fazla siteden videoyu ya da sesi tek tıkla, istediğin kalitede bilgisayarına indir. Reklam yok, hesap yok, sahte "İNDİR" düğmesi yok.</p>
       <div class="cta">
-        <a class="btn big primary" id="dlMain" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"><svg><use href="#i-dl"/></svg><span id="dlMainTx">Windows için indir</span></a>
+        <a class="btn big primary" id="dlMain" href="https://github.com/pepsicosamet-arch/NovaIndirici/releases/latest/download/NOVA-Indirici-Setup.exe"><svg><use href="#i-dl"/></svg><span id="dlMainTx">Windows için indir</span></a>
         <a class="btn big" href="https://github.com/pepsicosamet-arch/NovaIndirici" target="_blank" rel="noopener"><svg><use href="#i-git"/></svg>GitHub'da incele</a>
       </div>
       <div class="meta">
@@ -369,22 +372,22 @@ footer a:hover{color:var(--fg)}
         <div class="pi"><svg><use href="#i-win"/></svg></div>
         <h3>Windows</h3><span class="req">Windows 10 / 11 · 64 bit</span>
         <ol><li>Kurulum dosyasını indir ve çalıştır.</li><li>"Tanınmayan uygulama" uyarısında <b>Ek bilgi → Yine de çalıştır</b>.</li><li>Kur'a bas; yönetici izni gerekmez.</li></ol>
-        <a class="btn primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe"><svg><use href="#i-dl"/></svg>Windows için indir</a>
-        <span class="alt"><a href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici.exe">Kurulumsuz (taşınabilir) sürüm</a></span>
+        <a class="btn primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/releases/latest/download/NOVA-Indirici-Setup.exe"><svg><use href="#i-dl"/></svg>Windows için indir</a>
+        <span class="alt"><a href="https://github.com/pepsicosamet-arch/NovaIndirici/releases/latest/download/NOVA-Indirici.exe">Kurulumsuz (taşınabilir) sürüm</a></span>
       </div>
       <div class="plat" data-os="mac">
         <div class="pi"><svg><use href="#i-lap"/></svg></div>
         <h3>Mac</h3><span class="req">macOS 11+ · Apple Silicon ve Intel</span>
         <ol><li>DMG dosyasını indir ve aç.</li><li>NOVA'yı <b>Uygulamalar</b> klasörüne sürükle.</li><li>İlk açılışta sağ tık → <b>Aç</b>. Uyarı çıkarsa Sistem Ayarları → Gizlilik ve Güvenlik → <b>Yine de Aç</b>.</li></ol>
-        <a class="btn primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Mac.dmg"><svg><use href="#i-dl"/></svg>Mac için indir</a>
+        <a class="btn primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/releases/latest/download/NOVA-Indirici-Mac.dmg"><svg><use href="#i-dl"/></svg>Mac için indir</a>
         <span class="alt">Tek dosya, iki işlemci türü için</span>
       </div>
       <div class="plat" data-os="android">
         <div class="pi"><svg><use href="#i-phone"/></svg></div>
         <h3>Android</h3><span class="req">Android 7.0 ve üzeri</span>
-        <ol><li>APK dosyasını telefonuna indir.</li><li>Dosyaya dokun; istenirse <b>bu kaynaktan yüklemeye izin ver</b>.</li><li>YouTube'da Paylaş → <b>NOVA İndirici</b> ile de indirebilirsin.</li></ol>
-        <a class="btn primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Android.apk"><svg><use href="#i-dl"/></svg>Android için indir</a>
-        <span class="alt"><a href="https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Android-32bit.apk">Eski telefonlar için (32 bit)</a></span>
+        <ol><li>APK dosyasını telefonuna indir.</li><li>İndirme bitince dosyaya dokun; istenirse <b>bu kaynaktan yüklemeye izin ver</b>. Chrome "zararlı olabilir" derse <b>Yine de indir</b>'e bas.</li><li>YouTube'da Paylaş → <b>NOVA İndirici</b> ile de indirebilirsin.</li></ol>
+        <a class="btn primary" href="https://github.com/pepsicosamet-arch/NovaIndirici/releases/latest/download/NOVA-Indirici-Android.apk"><svg><use href="#i-dl"/></svg>Android için indir</a>
+        <span class="alt"><a href="https://github.com/pepsicosamet-arch/NovaIndirici/releases/latest/download/NOVA-Indirici-Android-32bit.apk">Eski telefonlar için (32 bit)</a></span>
       </div>
     </div>
     <div class="ios"><svg><use href="#i-phone"/></svg><span><b style="color:var(--fg)">iPhone / iPad:</b> Apple, video indirme uygulamalarına App Store'da izin vermediği ve iOS dışarıdan uygulama kurmayı kısıtladığı için iOS sürümü yok.</span></div>
@@ -472,10 +475,16 @@ footer a:hover{color:var(--fg)}
   // Ziyaretçinin cihazına uygun indirme düğmesi
   const ua = navigator.userAgent || '';
   const os = /Android/i.test(ua) ? 'android' : /iPhone|iPad|iPod/i.test(ua) ? 'ios' : /Macintosh|Mac OS X/i.test(ua) ? 'mac' : 'win';
-  const main = { win: ['https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Setup.exe', 'Windows için indir'], mac: ['https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Mac.dmg', 'Mac için indir'], android: ['https://github.com/pepsicosamet-arch/NovaIndirici/raw/main/dist/NOVA-Indirici-Android.apk', 'Android için indir'], ios: ['#indir', 'Diğer cihazlar için indir'] }[os];
+  const main = { win: ['https://github.com/pepsicosamet-arch/NovaIndirici/releases/latest/download/NOVA-Indirici-Setup.exe', 'Windows için indir'], mac: ['https://github.com/pepsicosamet-arch/NovaIndirici/releases/latest/download/NOVA-Indirici-Mac.dmg', 'Mac için indir'], android: ['https://github.com/pepsicosamet-arch/NovaIndirici/releases/latest/download/NOVA-Indirici-Android.apk', 'Android için indir'], ios: ['#indir', 'Diğer cihazlar için indir'] }[os];
   $('#dlMain').href = main[0]; $('#dlMainTx').textContent = main[1];
   const card = document.querySelector('.plat[data-os="' + os + '"]');
   if (card) { card.classList.add('me'); card.insertAdjacentHTML('afterbegin', '<span class="tag-me">Senin cihazın</span>'); }
+
+  // Instagram / TikTok / Facebook içindeki tarayıcılar dosya indirmeyi engeller
+  if (/Instagram|FBAN|FBAV|FB_IAB|TikTok|musical_ly|Bytedance|Snapchat|Line\//i.test(ua)) {
+    document.body.insertAdjacentHTML('beforeend', '<div class="inapp" id="inapp"><span>İndirme bu uygulamanın içinden çalışmaz. Sağ üstteki <b>⋯</b> menüsünden <b>Tarayıcıda aç</b>\'ı seç.</span><button class="btn sm" id="inappCopy" type="button">Linki kopyala</button></div>');
+    $('#inappCopy').onclick = () => { try { navigator.clipboard.writeText(location.href).then(() => toast('Link kopyalandı, Chrome\'a yapıştır')); } catch { toast(location.href); } };
+  }
 
   // Son sürümü GitHub'dan oku (sayfa yeniden yüklenmeden güncel kalır)
   fetch('https://raw.githubusercontent.com/pepsicosamet-arch/NovaIndirici/main/dist/latest.json', { cache: 'no-store' })

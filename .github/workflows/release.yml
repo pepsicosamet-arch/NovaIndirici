@@ -1,0 +1,47 @@
+name: Sürüm sayfası
+# dist/ içindeki dosyaları GitHub Releases'e yükler; telefonlar ve tarayıcılar
+# büyük dosyaları buradan sorunsuz indirir:
+#   https://github.com/<sahip>/<depo>/releases/latest/download/<dosya>
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['dist/latest.json', '.github/workflows/release.yml']
+  workflow_run:
+    workflows: ['Android paketi', 'macOS paketi']
+    types: [completed]
+permissions:
+  contents: write
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  release:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Sürüm sayfasını oluştur / güncelle
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VER=$(python3 -c "import json;print(json.load(open('dist/latest.json'))['version'])")
+          NOTES=$(python3 -c "import json;print(json.load(open('dist/latest.json')).get('notes',''))")
+          TAG="v$VER"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" --title "NOVA İndirici $VER" --latest \
+              --notes "$NOTES
+
+          **İndir:** Windows → NOVA-Indirici-Setup.exe · Mac → NOVA-Indirici-Mac.dmg · Android → NOVA-Indirici-Android.apk (eski telefonlar: NOVA-Indirici-Android-32bit.apk)
+
+          Geliştiren: Samet Şahin · novaindirici.com.tr"
+          fi
+          FILES=""
+          for f in NOVA-Indirici-Setup.exe NOVA-Indirici.exe NOVA-Indirici-Mac.dmg NOVA-Indirici-Android.apk NOVA-Indirici-Android-32bit.apk; do
+            [ -f "dist/$f" ] && FILES="$FILES dist/$f"
+          done
+          gh release upload "$TAG" $FILES --clobber
+          gh release edit "$TAG" --latest
+          gh release view "$TAG" --json assets --jq '.assets[] | "\(.name) \(.size)"'
