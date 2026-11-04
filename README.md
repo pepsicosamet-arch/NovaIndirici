@@ -43,6 +43,8 @@ NOVA aynı kodla bir sunucuda da çalışır: ziyaretçi bağlantıyı yapışt�
 - İç ağ adreslerine (127.0.0.1, 10.x, 169.254.x …) istek engellenir.
 - İndirme motoru (yt-dlp) 12 saatte bir kendini günceller.
 
+**Hetzner (önerilen, 20 TB trafik dahil):** Sunucu oluştururken `deploy/cloud-init.yaml` içeriğini **Cloud config** kutusuna yapıştır. Docker, NOVA ve otomatik HTTPS (Caddy) kendiliğinden kurulur; sunucu 30 dakikada bir GitHub'daki son sürümü çeker. Alan adı: `app.novaindirici.com.tr` için sunucunun IP adresine bir **A** kaydı ekle.
+
 **Render.com ile kurulum:** Render'da **New → Blueprint** seçip bu depoyu bağla; `render.yaml` her şeyi ayarlar. Her `git push` sonrası sunucu otomatik yeniden kurulur.
 
 **Kendi sunucunda (Docker):**
